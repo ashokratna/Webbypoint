@@ -8,8 +8,9 @@ export default class Dashboard extends Component {
     componentDidMount(){
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
                           callback: data=>{
+                              console.log(data)
                               if(localStorage.getItem('authData')) {
-                                  const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() || emp['Dev2 Name'].toLowerCase() || emp['Dev3 Name'].toLowerCase() || emp['Dev4 Name'].toLowerCase() || emp['Dev5 Name'].toLowerCase() || emp['Dev6 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
+                                  const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
                                   const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                                   this.setState({
                                     emp_data: particularEmployee,
@@ -21,14 +22,13 @@ export default class Dashboard extends Component {
                     }
 
     render() {
-        var sumAllted = 0;
+        var sumAlloted = 0;
         var sumKickoff =0;
         var sumRetention =0;
         var sumTdp =0;
         var sumPdc =  0;
         var sumEligible = 0;
         var sumFinal = 0;
-        var sumCuttoff = 5;
         var sumEscaltions = 0;
         var sumEdp = 0;
         var sumBooster =0;
@@ -38,7 +38,7 @@ export default class Dashboard extends Component {
 
         if(this.state.emp_data.length > 0){
             this.state.emp_data.map((person, index) => {
-                sumAllted = sumAllted + parseFloat(person['Dev1 Points']);
+                sumAlloted = sumAlloted + parseFloat(person['Dev1 Points']);
                 sumKickoff = sumKickoff + parseFloat(person['Dev1 Kickoff']);
                 sumRetention = sumRetention + parseFloat(person['Dev1 Retention']);
                 sumTdp = sumTdp + parseFloat(person['Dev1 TImely Delivery']);
@@ -51,15 +51,14 @@ export default class Dashboard extends Component {
                     sumEscaltions = sumEscaltions + 1 
                 };
 
-                if(sumAllted > (sumCuttoff*5)){
-                    sumBooster = sumAllted*(20/100);
+                if(sumAlloted > (cutoffPoint *5)){
+                    sumBooster = sumAlloted*(20/100);
                 }else{
                     sumBooster = 0
                 }
             });
         }
-
-        console.log(this.state.Cutoff)
+        console.log(this.state)
         return (
             <div>
                 <nav aria-label="breadcrumb">
@@ -77,11 +76,11 @@ export default class Dashboard extends Component {
                     </tr>
                     <tr>
                         <th>Your Quarterly Cut-off</th>
-                        <td>2</td>
+                        <td>--</td>
                     </tr>
                     <tr>
                         <th>Allotted Points</th>
-                        <td>{Math.round(sumAllted)}</td>
+                        <td>{Math.round(sumAlloted)}</td>
                     </tr>
                     <tr>
                         <th>Kickoff Points</th>
