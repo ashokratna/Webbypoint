@@ -4,11 +4,7 @@ import {NavLink, withRouter} from 'react-router-dom'
 
 
 class Navbar extends Component{
-    constructor(props){
-        super(props);
-    }
-
-    
+  
     render(){
     return (
         <div>
@@ -44,14 +40,6 @@ class Navbar extends Component{
                             backgroundColor:" #111",
                         }}>
                             <span className="glyphicon glyphicon-list-alt"></span><span className="nav-label">Dashboard</span>                            
-                        </NavLink>
-                        <NavLink 
-                        to='/detail'
-                        activeStyle={{
-                            fontWeight: "bold",
-                            backgroundColor:" #111"
-                        }}>
-                            <span className="glyphicon glyphicon-list-alt"></span><span className="nav-label">Details</span>                            
                         </NavLink>
                         <NavLink 
                         to='admin'

@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import Login from './Components/Login'
 import {
-  Router,BrowserRouter,
   Switch,
   Route,
   Redirect,
@@ -10,10 +9,7 @@ import {
 } from "react-router-dom";
 import Layout from './Components/Layout';
 import Dashboard from './Components/Dashboard';
-import Detail from './Components/Detail';
 import Admin from './Components/Admin';
-import Test from './Components/test';
-
 
 class App extends React.Component {
   render() {
@@ -22,7 +18,6 @@ class App extends React.Component {
         <Layout>
           <Switch>
             <Route path='/dashboard' component={Dashboard} exact/>
-            <Route path='/detail' component={Detail} exact/>
             <Route path='/admin' component={Admin} />
             <Redirect to='dashboard'/>
           </Switch>
