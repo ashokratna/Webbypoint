@@ -57,6 +57,7 @@ export default class Dashboard extends Component {
         <table className="user" width="100%">
                     <thead>
                         <tr>
+                            <th>Sr</th>
                             <th>Project Name</th>
                             <th>Project type</th>
                             <th>Project status</th>
@@ -77,6 +78,7 @@ export default class Dashboard extends Component {
                     !!this.state.emp_data.length && this.state.emp_data.map((person, index) => {
                         return (
                             <tr key={index}>
+                                 <td>{index  + 1}</td>
                                 <td>{person['Project Name']}</td>
                                 <td>{person['Project Type']}</td>
                                 <td>{person['Project Status']}</td>
