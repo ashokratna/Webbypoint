@@ -1,12 +1,25 @@
 import React, { Component } from 'react'
 import * as lodash from 'lodash';
-import '../Style/Common.css'
+import '../Style/Common.css';
+import Tabletop from "tabletop";
+
 
 export default class Dashboard extends Component {
     state={ emp_data : [], Cutoff :'', selectedTab: 0}
     
     componentDidMount(){
-        this.fetchData('fetchEmployeePoints');
+        // this.fetchData('fetchEmployeePoints');
+        Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
+        callback: data=>{
+            if(localStorage.getItem('authData')) {
+                // const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() || emp['Dev2 Name'].toLowerCase() || emp['Dev3 Name'].toLowerCase() || emp['Dev4 Name'].toLowerCase() || emp['Dev5 Name'].toLowerCase() || emp['Dev6 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
+                const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
+                const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                this.setState({
+                  emp_data: particularEmployee,
+                  Cutoff: particularCutoff })
+            }
+        }});
     }
 
     render() {
@@ -16,14 +29,6 @@ export default class Dashboard extends Component {
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
                         <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        <button className="btn" onClick={() => {
-                            this.setState({
-                                emp_data: [],
-                                Cutoff: ''
-                            }, () => {
-                                this.fetchData('updateRecords')
-                            });
-                        }}>Update</button>
                     </ol>
                 </nav>
                 <ul className="nav nav-tabs">
@@ -72,18 +77,18 @@ export default class Dashboard extends Component {
                     !!this.state.emp_data.length && this.state.emp_data.map((person, index) => {
                         return (
                             <tr key={index}>
-                                <td>{person['projectname']}</td>
-                                <td>{person['projecttype']}</td>
-                                <td>{person['projectstatus']}</td>
-                                <td>{person['clientfeedback']}</td>
-                                <td>{person['pointtype']}</td>
-                                <td>{person['dev1points']}</td>
-                                <td>{person['dev1kickoff']}</td>
-                                <td>{person['dev1retention']}</td>
-                                <td>{person['dev1timelydelivery']}</td>
-                                <td>{person['dev1pdcpoints']}</td>
-                                <td>{person['dev1eligible']}</td>
-                                <td>{person['dev1final']}</td>
+                                <td>{person['Project Name']}</td>
+                                <td>{person['Project Type']}</td>
+                                <td>{person['Project Status']}</td>
+                                <td>{person['Client Feedback']}</td>
+                                <td>{person['Point Type']}</td>
+                                <td>{person['Dev1 Points']}</td>
+                                <td>{person['Dev1 Kickoff']}</td>
+                                <td>{person['Dev1 Retention']}</td>
+                                <td>{person['Dev1 TImely Delivery']}</td>
+                                <td>{person['Dev1 PDC Points']}</td>
+                                <td>{person['Dev1 Eligible']}</td>
+                                <td>{person['Dev1 Final']}</td>
                             </tr>
                         )
                     }) 
@@ -123,26 +128,28 @@ export default class Dashboard extends Component {
         
         if(this.state.emp_data.length > 0){
             this.state.emp_data.map((person, index) => {
-                sumAlloted = sumAlloted + parseFloat(person['dev1points']);
-                sumKickoff = sumKickoff + parseFloat(person['dev1kickoff']);
-                sumRetention = sumRetention + parseFloat(person['dev1retention']);
-                sumTdp = sumTdp + parseFloat(person['dev1timelydelivery']);
-                sumPdc = sumPdc + parseFloat(person['dev1pdcpoints']);
-                sumEligible = sumEligible + parseFloat(person['dev1eligible']);
-                sumFinal = sumFinal + parseFloat(person['dev1final']);
+                sumAlloted = sumAlloted + parseFloat(person['Dev1 Points']);
+                sumKickoff = sumKickoff + parseFloat(person['Dev1 Kickoff']);
+                sumRetention = sumRetention + parseFloat(person['Dev1 Retention']);
+                sumTdp = sumTdp + parseFloat(person['Dev1 TImely Delivery']);
+                sumPdc = sumPdc + parseFloat(person['Dev1 PDC Points']);
+                sumEligible = sumEligible + parseFloat(person['Dev1 Eligible']);
+                sumFinal = sumFinal + parseFloat(person['Dev1 Final']);
                 sumEdp = sumFinal*2*(5/100);
                 
-                if(person['clientfeedback'] === 'Escalation'){
+                if(person['Client Feedback'] == 'Escalation'){
                     sumEscaltions = sumEscaltions + 1 
                 };
 
-                if(sumAlloted > (+cutoffPoint.cutoff *5)){
+                if(sumAlloted > (cutoffPoint.Cutoff *5)){
                     sumBooster = sumAlloted*(20/100);
                 }else{
                     sumBooster = 0
                 }
             });
         }
+        console.log(cutoffPoint);
+        
         return (
             <div>
                 {
@@ -155,7 +162,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Your Quarterly Cut-off</th>
-                            <td>--</td>
+                            <td>{cutoffPoint.Cutoff}</td>
                         </tr>
                         <tr>
                             <th>Allotted Points</th>
@@ -187,7 +194,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Cuttoff</th>
-                            <td>{+cutoffPoint.cutoff}</td>
+                            <td>{cutoffPoint.Cutoff}</td>
                         </tr>
                         <tr>
                             <th>Number of Escalations</th>
@@ -203,7 +210,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr className="highlight">
                             <th>Payable Points</th>
-                            <td>{Math.round(sumFinal - (cutoffPoint.cutoff) - sumEdp + sumBooster)}</td>
+                            <td>{Math.round(sumFinal - (cutoffPoint.Cutoff) - sumEdp + sumBooster)}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -219,7 +226,7 @@ export default class Dashboard extends Component {
     }
 
     fetchData = (endpoint) => {
-        fetch(`http://172.16.3.188:8000/${endpoint}`)
+        fetch(`http://172.16.3.240:3000/${endpoint}`)
         .then(response => response.json())
         .then(data => {
           if(localStorage.getItem('authData')) {            
