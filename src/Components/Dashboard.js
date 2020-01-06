@@ -4,16 +4,24 @@ import '../Style/Common.css';
 import Tabletop from "tabletop";
 
 
+const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert']
 export default class Dashboard extends Component {
-    state={ emp_data : [], Cutoff :'', selectedTab: 0}
+    state={ emp_data : [], Cutoff :'', selectedTab: 0, }
     
     componentDidMount(){
         // this.fetchData('fetchEmployeePoints');
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
-            if(localStorage.getItem('authData')) {
-                // const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() || emp['Dev2 Name'].toLowerCase() || emp['Dev3 Name'].toLowerCase() || emp['Dev4 Name'].toLowerCase() || emp['Dev5 Name'].toLowerCase() || emp['Dev6 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
-                const  particularEmployee = lodash.filter(data.Projects.elements, emp => emp['Dev1 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev2 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev3 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev4 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev5 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev6 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Dev5 Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase() || emp['Expert Name'].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
+            if(localStorage.getItem('authData')) {               
+                const particularEmployee = [];
+                data.Projects.elements.forEach((obj) => {
+                    return devKeys.forEach((str)=>{
+                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                            return particularEmployee.push(obj);
+                        }
+                    });
+                })         
+               
                 const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                 this.setState({
                   emp_data: particularEmployee,
@@ -84,13 +92,55 @@ export default class Dashboard extends Component {
                                 <td>{person['Project Status']}</td>
                                 <td>{person['Client Feedback']}</td>
                                 <td>{person['Point Type']}</td>
-                                <td>{person['Dev1 Points']}</td>
-                                <td>{person['Dev1 Kickoff']}</td>
-                                <td>{person['Dev1 Retention']}</td>
-                                <td>{person['Dev1 TImely Delivery']}</td>
-                                <td>{person['Dev1 PDC Points']}</td>
-                                <td>{person['Dev1 Eligible']}</td>
-                                <td>{person['Dev1 Final']}</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} Points`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} Kickoff`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} Retention`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} TImely Delivery`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} PDC Points`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} Eligible`];
+                                        }
+                                    })
+                                }</td>
+                                <td>{
+                                    devKeys.map((str)=>{
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                            return person[`${str} Final`];
+                                        }
+                                    })
+                                }</td>
                             </tr>
                         )
                     }) 
