@@ -225,19 +225,19 @@ export default class Dashboard extends Component {
         )
     }
 
-    fetchData = (endpoint) => {
-        fetch(`http://172.16.3.240:3000/${endpoint}`)
-        .then(response => response.json())
-        .then(data => {
-          if(localStorage.getItem('authData')) {            
-            const  particularEmployee = lodash.filter(data.data.projects , emp => emp.dev1name.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
-            const particularCutoff = lodash.find(data.data.cutOff, (emp) => emp.developer.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
-             this.setState({
-                 emp_data: particularEmployee,
-                 Cutoff : particularCutoff
-            });                                  
-          }
-        })
-        .catch(error => console.error(error))
-    }
+    // fetchData = (endpoint) => {
+    //     fetch(`http://172.16.3.240:3000/${endpoint}`)
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       if(localStorage.getItem('authData')) {            
+    //         const  particularEmployee = lodash.filter(data.data.projects , emp => emp.dev1name.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
+    //         const particularCutoff = lodash.find(data.data.cutOff, (emp) => emp.developer.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+    //          this.setState({
+    //              emp_data: particularEmployee,
+    //              Cutoff : particularCutoff
+    //         });                                  
+    //       }
+    //     })
+    //     .catch(error => console.error(error))
+    // }
 }
