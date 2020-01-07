@@ -9,7 +9,6 @@ export default class Dashboard extends Component {
     state={ emp_data : [], Cutoff :'', selectedTab: 0, }
     
     componentDidMount(){
-        // this.fetchData('fetchEmployeePoints');
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
             if(localStorage.getItem('authData')) {               
@@ -188,20 +187,9 @@ export default class Dashboard extends Component {
         const postdeliverypoint = [];
         const eligiblepoint = [];
         const finalpoint = [];
-
-        var sumKickoff = 0;
-        var sumRetention = 0;
-        var sumTdp = 0;
-        var sumPdc =  0;
-        var sumEligible = 0;
-        var sumFinal = 0;
-        var sumEscaltions = 0;
-        var sumEdp = 0;
-        var sumBooster =0;
+        const finalsum = []
         var cutoffPoint = this.state.Cutoff;
-        
-        
-
+        var escaltions = 0
         if(this.state.emp_data.length > 0){
             this.state.emp_data.map((person, index) => {                
                 devKeys.map((str)=>{
@@ -248,17 +236,22 @@ export default class Dashboard extends Component {
                 })
                 
                 if(person['Client Feedback'] == 'Escalation'){
-                    sumEscaltions = sumEscaltions + 1 
+                    escaltions = escaltions + 1 
                 };
             });
         }
+        finalpoint.forEach(function(el,i){
+            finalsum.push(el.split(',').join(''))
+        })
+
+        const totalFinalpoint = this.sum(finalsum);
+
         const totalAlloted = this.sum(allocated);
         const totalKickoff = this.sum(kickoff)
         const totalRetention = this.sum(retention)
         const totalTDpoint = this.sum(timelydelivery)
         const totalPdc = this.sum(postdeliverypoint)
         const totalEligiblepoint = this.sum(eligiblepoint)
-        const totalFinalpoint = this.sum(finalpoint);
         var totalBooster = 0;
         var totalEdp = totalFinalpoint*2*(5/100);
 
@@ -267,7 +260,6 @@ export default class Dashboard extends Component {
         }else{
             totalBooster = 0
         }
-        
 
         return (
             <div>
@@ -317,7 +309,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Number of Escalations</th>
-                            <td>{sumEscaltions}</td>
+                            <td>{escaltions}</td>
                         </tr>
                         <tr>
                             <th>Escalation Deduction Points</th>
