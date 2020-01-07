@@ -43,6 +43,10 @@
     background-color: white;
   }
 
+  table.user.dash .makered{
+    color: red;
+  }
+
   table.user.dash tr.highlight{
     background-color: #fcf451;
   }
@@ -204,7 +208,6 @@
   }
   
   .main-content {
-    margin-left: 200px;
     padding: 65px;
   }
   

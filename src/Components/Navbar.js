@@ -29,7 +29,7 @@ class Navbar extends Component{
                 </div>
                 </nav>
 
-                <nav className="navbar-primary" ref="navbar">
+                {/* <nav className="navbar-primary" ref="navbar">
                     <a href="#" className="btn-expand-collapse"><span className="glyphicon glyphicon-menu-left"></span></a>
                     <ul className="navbar-primary-menu">
                     <li>
@@ -52,7 +52,7 @@ class Navbar extends Component{
                       
                     </li>
                     </ul>
-                </nav>
+                </nav> */}
   </div>
     );
 }

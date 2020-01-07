@@ -281,11 +281,11 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Kickoff Points</th>
-                            <td>{totalKickoff}</td>
+                            <td>{Math.round(totalKickoff)}</td>
                         </tr>
                         <tr>
                             <th>Retention Points</th>
-                            <td>{totalRetention}</td>
+                            <td>{Math.round(totalRetention)}</td>
                         </tr>
                         <tr>
                             <th>Timely Delivery Points</th>
@@ -308,12 +308,12 @@ export default class Dashboard extends Component {
                             <td>{cutoffPoint.Cutoff}</td>
                         </tr>
                         <tr>
-                            <th>Number of Escalations</th>
-                            <td>{escaltions}</td>
+                            <th className="makered">Number of Escalations</th>
+                            <td className="makered">{escaltions}</td>
                         </tr>
                         <tr>
-                            <th>Escalation Deduction Points</th>
-                            <td>{Math.round(totalEdp)}</td>
+                            <th className="makered">Escalation Deduction Points</th>
+                            <td className="makered">{Math.round(totalEdp)}</td>
                         </tr>
                         <tr>
                             <th>Efficiency Booster</th>
