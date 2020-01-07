@@ -20,12 +20,13 @@ export default class Dashboard extends Component {
                             return particularEmployee.push(obj);
                         }
                     });
-                })         
+                })
                
                 const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                 this.setState({
                   emp_data: particularEmployee,
-                  Cutoff: particularCutoff })
+                  Cutoff: particularCutoff 
+                })
             }
         }});
     }
@@ -94,7 +95,7 @@ export default class Dashboard extends Component {
                                 <td>{person['Point Type']}</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                       
                                             return person[`${str} Points`];
                                         }
                                     })
@@ -163,8 +164,31 @@ export default class Dashboard extends Component {
         )
     }
 
+    sum = (input)=>{
+             
+        if (toString.call(input) !== "[object Array]")
+           return false;
+             
+                   var total =  0;
+                   for(var i=0;i<input.length;i++)
+                     {                  
+                       if(isNaN(input[i])){
+                       continue;
+                        }
+                         total += Number(input[i]);
+                      }
+                    return total;
+                   }
+
     getPointTable = () => {
-        var sumAlloted = 0;
+        const allocated = [];
+        const kickoff = [];
+        const retention = [];
+        const timelydelivery = [];
+        const postdeliverypoint = [];
+        const eligiblepoint = [];
+        const finalpoint = [];
+
         var sumKickoff = 0;
         var sumRetention = 0;
         var sumTdp = 0;
@@ -174,34 +198,77 @@ export default class Dashboard extends Component {
         var sumEscaltions = 0;
         var sumEdp = 0;
         var sumBooster =0;
-
         var cutoffPoint = this.state.Cutoff;
-       
         
+        
+
         if(this.state.emp_data.length > 0){
-            this.state.emp_data.map((person, index) => {
-                sumAlloted = sumAlloted + parseFloat(person['Dev1 Points']);
-                sumKickoff = sumKickoff + parseFloat(person['Dev1 Kickoff']);
-                sumRetention = sumRetention + parseFloat(person['Dev1 Retention']);
-                sumTdp = sumTdp + parseFloat(person['Dev1 TImely Delivery']);
-                sumPdc = sumPdc + parseFloat(person['Dev1 PDC Points']);
-                sumEligible = sumEligible + parseFloat(person['Dev1 Eligible']);
-                sumFinal = sumFinal + parseFloat(person['Dev1 Final']);
-                sumEdp = sumFinal*2*(5/100);
+            this.state.emp_data.map((person, index) => {                
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                       
+                        return allocated.push(person[`${str} Points`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                       
+                        console.log(person[`${str} Kickoff`]);                        
+                        return kickoff.push(person[`${str} Kickoff`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                                                              
+                        return retention.push(person[`${str} Retention`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                                                              
+                        return timelydelivery.push(person[`${str} TImely Delivery`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                                                              
+                        return postdeliverypoint.push(person[`${str} PDC Points`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                                                              
+                        return eligiblepoint.push(person[`${str} Eligible`])          
+                    }
+                })
+
+                devKeys.map((str)=>{
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                                                              
+                        return finalpoint.push(person[`${str} Final`])          
+                    }
+                })
                 
                 if(person['Client Feedback'] == 'Escalation'){
                     sumEscaltions = sumEscaltions + 1 
                 };
-
-                if(sumAlloted > (cutoffPoint.Cutoff *5)){
-                    sumBooster = sumAlloted*(20/100);
-                }else{
-                    sumBooster = 0
-                }
             });
         }
-        console.log(cutoffPoint);
+        const totalAlloted = this.sum(allocated);
+        const totalKickoff = this.sum(kickoff)
+        const totalRetention = this.sum(retention)
+        const totalTDpoint = this.sum(timelydelivery)
+        const totalPdc = this.sum(postdeliverypoint)
+        const totalEligiblepoint = this.sum(eligiblepoint)
+        const totalFinalpoint = this.sum(finalpoint);
+        var totalBooster = 0;
+        var totalEdp = totalFinalpoint*2*(5/100);
+
+        if(totalAlloted > (cutoffPoint.Cutoff *5)){
+            totalBooster = totalAlloted*(20/100);
+        }else{
+            totalBooster = 0
+        }
         
+
         return (
             <div>
                 {
@@ -218,31 +285,31 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Allotted Points</th>
-                            <td>{Math.round(sumAlloted)}</td>
+                            <td>{Math.round(totalAlloted)}</td>
                         </tr>
                         <tr>
                             <th>Kickoff Points</th>
-                            <td>{sumKickoff}</td>
+                            <td>{totalKickoff}</td>
                         </tr>
                         <tr>
                             <th>Retention Points</th>
-                            <td>{sumRetention}</td>
+                            <td>{totalRetention}</td>
                         </tr>
                         <tr>
                             <th>Timely Delivery Points</th>
-                            <td>{Math.round(sumTdp)}</td>
+                            <td>{Math.round(totalTDpoint)}</td>
                         </tr>
                         <tr>
                             <th>Post Delivery Cycle Points</th>
-                            <td>{Math.round(sumPdc)}</td>
+                            <td>{Math.round(totalPdc)}</td>
                         </tr>
                         <tr>
                             <th>Total Eligible Points</th>
-                            <td>{Math.round(sumEligible)}</td>
+                            <td>{Math.round(totalEligiblepoint)}</td>
                         </tr>
                         <tr>
                             <th>Final Points</th>
-                            <td>{Math.round(sumFinal)}</td>
+                            <td>{Math.round(totalFinalpoint)}</td>
                         </tr>
                         <tr>
                             <th>Cuttoff</th>
@@ -254,15 +321,15 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Escalation Deduction Points</th>
-                            <td>{Math.round(sumEdp)}</td>
+                            <td>{Math.round(totalEdp)}</td>
                         </tr>
                         <tr>
                             <th>Efficiency Booster</th>
-                            <td>{Math.round(sumBooster)}</td>
+                            <td>{Math.round(totalBooster)}</td>
                         </tr>
                         <tr className="highlight">
                             <th>Payable Points</th>
-                            <td>{Math.round(sumFinal - (cutoffPoint.Cutoff) - sumEdp + sumBooster)}</td>
+                            <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdp + totalBooster)}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -276,20 +343,4 @@ export default class Dashboard extends Component {
             </div>
         )
     }
-
-    // fetchData = (endpoint) => {
-    //     fetch(`http://172.16.3.240:3000/${endpoint}`)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       if(localStorage.getItem('authData')) {            
-    //         const  particularEmployee = lodash.filter(data.data.projects , emp => emp.dev1name.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase());
-    //         const particularCutoff = lodash.find(data.data.cutOff, (emp) => emp.developer.toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
-    //          this.setState({
-    //              emp_data: particularEmployee,
-    //              Cutoff : particularCutoff
-    //         });                                  
-    //       }
-    //     })
-    //     .catch(error => console.error(error))
-    // }
 }
