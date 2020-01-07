@@ -253,7 +253,7 @@ export default class Dashboard extends Component {
         const totalPdc = this.sum(postdeliverypoint)
         const totalEligiblepoint = this.sum(eligiblepoint)
         var totalBooster = 0;
-        var totalEdp = totalFinalpoint*2*(5/100);
+        var totalEdp = totalFinalpoint*escaltions*(5/100);
 
         if(totalAlloted > (cutoffPoint.Cutoff *5)){
             totalBooster = totalAlloted*(20/100);
