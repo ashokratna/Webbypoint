@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import * as lodash from 'lodash';
 import '../../Style/Common.css';
 import Tabletop from "tabletop";
+import { throwStatement } from '@babel/types';
 
 
 const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert']
@@ -249,6 +250,16 @@ export default class Dashboard extends Component {
                 };
             });
         }
+
+        // console.log(this.state.feasibilityPoint)
+
+        const feasibilitypoint = [];
+        if(this.state.feasibilityPoint.length > 0){
+            this.state.feasibilityPoint.map((person,index)=>{
+                feasibilitypoint.push(person["Feasibility Points"])
+            })
+        }
+
         finalpoint.forEach(function(el,i){
             finalsum.push(el.split(',').join(''))
         })
@@ -263,12 +274,15 @@ export default class Dashboard extends Component {
         const totalEligiblepoint = this.sum(eligiblepoint)
         var totalBooster = 0;
         var totalEdp = totalFinalpoint*escaltions*(5/100);
-
+        var totalFeasibilitypoint = this.sum(feasibilitypoint);
         if(totalAlloted > (cutoffPoint.Cutoff *5)){
             totalBooster = totalAlloted*(20/100);
         }else{
             totalBooster = 0
         }
+
+        console.log(totalFeasibilitypoint);
+        
 
         return (
             <div>
@@ -303,6 +317,10 @@ export default class Dashboard extends Component {
                         <tr>
                             <th>Post Delivery Cycle Points</th>
                             <td>{Math.round(totalPdc)}</td>
+                        </tr>
+                        <tr>
+                            <th>Feasibility Points</th>
+                            <td>{Math.round(totalFeasibilitypoint)}</td>
                         </tr>
                         <tr>
                             <th>Total Eligible Points</th>
