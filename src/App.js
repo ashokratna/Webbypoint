@@ -1,15 +1,14 @@
 import React from 'react';
 import './App.css';
-import Login from './Components/Login'
+import Login from './Components/Login/Login'
 import {
   Switch,
   Route,
   Redirect,
   withRouter
 } from "react-router-dom";
-import Layout from './Components/Layout';
-import Dashboard from './Components/Dashboard';
-import Admin from './Components/Admin';
+import Layout from './Components/Layout/Layout';
+import Dashboard from './Components/Dashboard/Dashboard';
 
 class App extends React.Component {
   render() {
@@ -18,7 +17,6 @@ class App extends React.Component {
         <Layout>
           <Switch>
             <Route path='/dashboard' component={Dashboard} exact/>
-            <Route path='/admin' component={Admin} />
             <Redirect to='dashboard'/>
           </Switch>
       </Layout>

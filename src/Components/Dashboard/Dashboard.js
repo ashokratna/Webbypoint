@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
 import * as lodash from 'lodash';
-import '../Style/Common.css';
+import '../../Style/Common.css';
 import Tabletop from "tabletop";
 
 
 const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert']
 export default class Dashboard extends Component {
-    state={ emp_data : [], Cutoff :'', selectedTab: 0, }
+    state={ emp_data : [], Cutoff :'', selectedTab: 0, feasibilityPoint : []}
     
     componentDidMount(){
+
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
-            if(localStorage.getItem('authData')) {               
+            if(localStorage.getItem('authData')) {
                 const particularEmployee = [];
                 data.Projects.elements.forEach((obj) => {
                     return devKeys.forEach((str)=>{
@@ -22,16 +23,22 @@ export default class Dashboard extends Component {
                 })
                
                 const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                const particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                                 
+                // console.log(data.Cutoff.elements);  
+
                 this.setState({
                   emp_data: particularEmployee,
-                  Cutoff: particularCutoff 
+                  Cutoff: particularCutoff,
+                  feasibilityPoint : particularFeasiblepoint
                 })
             }
         }});
+        
     }
 
     render() {
-
+        
         return (
             <div>
                 <nav aria-label="breadcrumb">
@@ -46,9 +53,12 @@ export default class Dashboard extends Component {
                     <li className="nav-item" onClick={() => this.handleChangeTab(1)}>
                         <p className={`nav-link ${this.state.selectedTab === 1 ? 'active' : ''}`} href="#!">Projects</p>
                     </li>
+                    <li className="nav-item" onClick={() => this.handleChangeTab(2)}>
+                        <p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>
+                    </li>
                 </ul>
                 {
-                  this.state.selectedTab === 0 ? this.getPointTable() : this.getProjectTable()
+                this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.getFeasibilitytable()    
                 }
             </div>
         )
@@ -199,8 +209,7 @@ export default class Dashboard extends Component {
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                                                                                       
-                        console.log(person[`${str} Kickoff`]);                        
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {            
                         return kickoff.push(person[`${str} Kickoff`])          
                     }
                 })
@@ -235,7 +244,7 @@ export default class Dashboard extends Component {
                     }
                 })
                 
-                if(person['Client Feedback'] == 'Escalation'){
+                if(person['Client Feedback'] === 'Escalation'){
                     escaltions = escaltions + 1 
                 };
             });
@@ -335,4 +344,50 @@ export default class Dashboard extends Component {
             </div>
         )
     }
+
+    getFeasibilitytable = () => {
+        console.log(this.state.feasibilityPoint)
+        return(
+            <table className="user" width="100%">
+            <thead>
+                <tr>
+                    <th>Sr</th>
+                    <th>Quote Id</th>
+                    <th>Feasibility Check By</th>
+                    <th>Hrs Invested</th>
+                    <th>Feasibility Points</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {
+            !!this.state.feasibilityPoint.length && this.state.feasibilityPoint.map((person, index) => {
+                return (
+                    <tr key={index}>
+                         <td>{index  + 1}</td>
+                        <td>{person['Quote Id']}</td>
+                        <td>{person['Feasibility Checked By (If Developer)']}</td>
+                        <td>{person['Hrs Invested']}</td>
+                        <td>{person['Feasibility Points']}</td>
+                    </tr>
+                )
+            }) 
+        }
+        {
+            !this.state.emp_data.length &&
+            <tr>
+                <td colSpan={12}>
+            <div className="d-flex justify-content-center">
+            <div className="spinner-border text-success" role="status">
+                <span className="sr-only">Loading...</span>
+            </div>
+            </div>
+                </td>
+            </tr> 
+        }
+
+            </tbody>
+        </table>
+        )
+    } 
 }
