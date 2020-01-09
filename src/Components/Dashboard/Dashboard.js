@@ -348,7 +348,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr className="highlight">
                             <th>Payable Points</th>
-                            <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdp + totalBooster)}</td>
+                            <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdp + totalBooster + totalFeasibilitypoint)}</td>
                         </tr>
                         </tbody>
                     </table>
