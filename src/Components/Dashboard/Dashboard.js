@@ -433,12 +433,12 @@ export default class Dashboard extends Component {
                         {this.state.delights?(
                             <tr className="highlight">
                                 <th>Payable Points</th>
-                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdpforpc)}</td>
+                                <td>{Math.round((totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) - (cutoffPoint.Cutoff) - totalEdpforpc)}</td>
                             </tr>
                         ):(
                             <tr className="highlight">
                                 <th>Payable Points</th>
-                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdpfordev)}</td>
+                                <td>{Math.round((totalFinalpoint + totalFeasibilitypoint + totalBooster) - (cutoffPoint.Cutoff) - totalEdpfordev)}</td>
                             </tr>
                         )}
                         
