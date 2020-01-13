@@ -443,8 +443,7 @@ export default class Dashboard extends Component {
             <thead>
                 <tr>
                     <th>Sr</th>
-                    <th>Quote Id</th>
-                    <th>Feasibility Check By</th>
+                    <th>Quote Id</th>                    
                     <th>Hrs Invested</th>
                     <th>Feasibility Points</th>
                 </tr>
@@ -456,8 +455,7 @@ export default class Dashboard extends Component {
                 return (
                     <tr key={index}>
                          <td>{index  + 1}</td>
-                        <td>{person['Quote Id']}</td>
-                        <td>{person['Feasibility Checked By (If Developer)']}</td>
+                        <td>{person['Quote Id']}</td>                        
                         <td>{person['Hrs Invested']}</td>
                         <td>{person['Feasibility Points']}</td>
                     </tr>
@@ -490,8 +488,7 @@ export default class Dashboard extends Component {
                 <tr>
                     <th>Sr</th>
                     <th>Client Name </th>
-                    <th>Agency Name</th>
-                    <th>Brought By</th>
+                    <th>Agency Name</th>                   
                     <th>Testimony Type</th>
                     <th>Testimony Points</th>
                 </tr>
@@ -504,8 +501,7 @@ export default class Dashboard extends Component {
                     <tr key={index}>
                          <td>{index  + 1}</td>
                         <td>{person['Client Name']}</td>
-                        <td>{person['Agency Name']}</td>
-                        <td>{person['Brought By']}</td>
+                        <td>{person['Agency Name']}</td>                       
                         <td>{person['Testimony Type']}</td>
                         <td>{person['Testimony Points']}</td>
                     </tr>
@@ -539,8 +535,7 @@ export default class Dashboard extends Component {
                     <th>Sr</th>
                     <th>Quote Id </th>
                     <th>Quote Cost (Std)</th>
-                    <th>Quote Status</th>
-                    <th>Quote Prepared By</th>
+                    <th>Quote Status</th>                    
                     <th>Quote Points</th>
                 </tr>
             </thead>
@@ -553,8 +548,7 @@ export default class Dashboard extends Component {
                          <td>{index  + 1}</td>
                         <td>{person['Quote Id']}</td>
                         <td>{person['Quote Cost (Std)']}</td>
-                        <td>{person['Quote Status']}</td>
-                        <td>{person['Quote Prepared By']}</td>
+                        <td>{person['Quote Status']}</td>                       
                         <td>{person['Quote Points']}</td>
                     </tr>
                 )
