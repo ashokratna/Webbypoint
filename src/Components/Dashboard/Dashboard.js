@@ -3,43 +3,66 @@ import * as lodash from 'lodash';
 import '../../Style/Common.css';
 import Tabletop from "tabletop";
 import { throwStatement } from '@babel/types';
+import { REFUSED } from 'dns';
 
 
-const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert']
+const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert','PC1','PC2']
 export default class Dashboard extends Component {
-    state={ emp_data : [], Cutoff :'', selectedTab: 0, feasibilityPoint : []}
-    
+    state={ emp_data : [], Cutoff :'', selectedTab: 0, feasibilityPoint : [], delights:[], quotes : []}
+
     componentDidMount(){
 
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
             if(localStorage.getItem('authData')) {
                 const particularEmployee = [];
+                var particularDeights;
+                var particularFeasiblepoint;
+                var particularQuotes;
                 data.Projects.elements.forEach((obj) => {
-                    return devKeys.forEach((str)=>{
-                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {
+                    return devKeys.forEach((str)=>{                
+                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())) {                           
                             return particularEmployee.push(obj);
                         }
                     });
                 })
-               
-                const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
-                const particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
-                                 
-                // console.log(data.Cutoff.elements);  
 
+                const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                
+               
+
+                data.Projects.elements.forEach((obj)=>{
+                    return devKeys.forEach((str)=>{                        
+                        if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())){
+                            console.log(str);
+                            if(str == 'PC1' || str == 'PC2'){
+                                particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                                particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                                // return particularDelights.push(obj);
+                            }else{
+                                console.log('Dev point table')
+                                // return particularFeasiblity.push(obj)
+                                particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
+                            }
+                        }
+                    })                    
+                })
+                
                 this.setState({
                   emp_data: particularEmployee,
                   Cutoff: particularCutoff,
-                  feasibilityPoint : particularFeasiblepoint
+                  feasibilityPoint : particularFeasiblepoint,
+                  delights: particularDeights,
+                  quotes:particularQuotes
                 })
             }
         }});
         
+
     }
 
     render() {
-        
+        console.log(this.state.delights);
         return (
             <div>
                 <nav aria-label="breadcrumb">
@@ -53,13 +76,18 @@ export default class Dashboard extends Component {
                     </li>
                     <li className="nav-item" onClick={() => this.handleChangeTab(1)}>
                         <p className={`nav-link ${this.state.selectedTab === 1 ? 'active' : ''}`} href="#!">Projects</p>
-                    </li>
+                    </li>                    
                     <li className="nav-item" onClick={() => this.handleChangeTab(2)}>
-                        <p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>
+                        {this.state.feasibilityPoint? (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>) : (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Delights</p>) }                        
                     </li>
+                    {this.state.delights ? (
+                        <li className="nav-item" onClick={() => this.handleChangeTab(3)}>
+                        <p className={`nav-link ${this.state.selectedTab === 3 ? 'active' : ''}`} href="#!">Quotes</p>
+                    </li>
+                    ): null}
                 </ul>
                 {
-                this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.getFeasibilitytable()    
+                    this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.state.selectedTab === 3 ? this.getQuotesPoint() :this.state.feasibilityPoint ? this.getFeasibilitytable() : this.getDelightPoint()
                 }
             </div>
         )
@@ -244,6 +272,7 @@ export default class Dashboard extends Component {
                         return finalpoint.push(person[`${str} Final`])          
                     }
                 })
+               
                 
                 if(person['Client Feedback'] === 'Escalation'){
                     escaltions = escaltions + 1 
@@ -254,11 +283,27 @@ export default class Dashboard extends Component {
         // console.log(this.state.feasibilityPoint)
 
         const feasibilitypoint = [];
-        if(this.state.feasibilityPoint.length > 0){
+        if(this.state.feasibilityPoint && this.state.feasibilityPoint.length > 0){
             this.state.feasibilityPoint.map((person,index)=>{
                 feasibilitypoint.push(person["Feasibility Points"])
             })
         }
+
+        const quotesPoint = [];
+        if(this.state.quotes && this.state.quotes.length > 0){
+            this.state.quotes.map((person,index)=>{
+                quotesPoint.push(person["Quote Points"])
+            })
+        }
+
+        const testimonyPoint=[];
+        if(this.state.delights && this.state.delights.length > 0){
+            this.state.delights.map((person, index) => {
+                testimonyPoint.push(person["Testimony Points"]);
+            })
+        }
+        
+        console.log(testimonyPoint);
 
         finalpoint.forEach(function(el,i){
             finalsum.push(el.split(',').join(''))
@@ -275,6 +320,8 @@ export default class Dashboard extends Component {
         var totalBooster = 0;
         var totalEdp = totalFinalpoint*escaltions*(5/100);
         var totalFeasibilitypoint = this.sum(feasibilitypoint);
+        var totalQuotespoint = this.sum(quotesPoint);
+        var totalTestymonypoint = this.sum(testimonyPoint);
         if(totalAlloted > (cutoffPoint.Cutoff *5)){
             totalBooster = totalAlloted*(20/100);
         }else{
@@ -314,14 +361,40 @@ export default class Dashboard extends Component {
                             <th>Timely Delivery Points</th>
                             <td>{Math.round(totalTDpoint)}</td>
                         </tr>
+                        
                         <tr>
                             <th>Post Delivery Cycle Points</th>
                             <td>{Math.round(totalPdc)}</td>
                         </tr>
+
+                        {this.state.delights ?
+                            (
+                            <tr>
+                                <th>Quote Points</th>
+                                <td>{Math.round(totalQuotespoint)}</td>
+                            </tr>
+                            )
+                            :
+                            null
+                        }                       
+
                         <tr>
-                            <th>Feasibility Points</th>
-                            <td>{Math.round(totalFeasibilitypoint)}</td>
-                        </tr>
+                            {this.state.feasibilityPoint ?
+                                (
+                                    <React.Fragment>
+                                    <th>Feasibility Points</th>
+                                    <td>{Math.round(totalFeasibilitypoint)}</td>
+                                    </React.Fragment>
+                                )
+                                :
+                                (
+                                    <React.Fragment>
+                                        <th>Testimony Points</th>
+                                        <td>{Math.round(totalTestymonypoint)}</td>
+                                    </React.Fragment>
+                                )
+                            }                           
+                           </tr>                    
                         <tr>
                             <th>Total Eligible Points</th>
                             <td>{Math.round(totalEligiblepoint)}</td>
@@ -379,7 +452,7 @@ export default class Dashboard extends Component {
             <tbody>
 
             {
-            !!this.state.feasibilityPoint.length && this.state.feasibilityPoint.map((person, index) => {
+            !!this.state.feasibilityPoint && this.state.feasibilityPoint.map((person, index) => {
                 return (
                     <tr key={index}>
                          <td>{index  + 1}</td>
@@ -389,7 +462,7 @@ export default class Dashboard extends Component {
                         <td>{person['Feasibility Points']}</td>
                     </tr>
                 )
-            }) 
+            })
         }
         {
             !this.state.emp_data.length &&
@@ -407,5 +480,100 @@ export default class Dashboard extends Component {
             </tbody>
         </table>
         )
-    } 
+    }
+
+    getDelightPoint =() =>{
+        console.log('Delight Point Table here')
+        return(
+            <table className="user" width="100%">
+            <thead>
+                <tr>
+                    <th>Sr</th>
+                    <th>Client Name </th>
+                    <th>Agency Name</th>
+                    <th>Brought By</th>
+                    <th>Testimony Type</th>
+                    <th>Testimony Points</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {
+            !!this.state.delights && this.state.delights.map((person, index) => {
+                return (
+                    <tr key={index}>
+                         <td>{index  + 1}</td>
+                        <td>{person['Client Name']}</td>
+                        <td>{person['Agency Name']}</td>
+                        <td>{person['Brought By']}</td>
+                        <td>{person['Testimony Type']}</td>
+                        <td>{person['Testimony Points']}</td>
+                    </tr>
+                )
+            })
+        }
+        {
+            !this.state.emp_data.length &&
+            <tr>
+                <td colSpan={12}>
+            <div className="d-flex justify-content-center">
+            <div className="spinner-border text-success" role="status">
+                <span className="sr-only">Loading...</span>
+            </div>
+            </div>
+                </td>
+            </tr> 
+        }
+        </tbody>
+        </table>
+        )
+    }
+    
+    getQuotesPoint = () =>{
+        console.log(this.state.quotes);
+        
+        return(
+            <table className="user" width="100%">
+            <thead>
+                <tr>
+                    <th>Sr</th>
+                    <th>Quote Id </th>
+                    <th>Quote Cost (Std)</th>
+                    <th>Quote Status</th>
+                    <th>Quote Prepared By</th>
+                    <th>Quote Points</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {
+            !!this.state.quotes && this.state.quotes.map((person, index) => {
+                return (
+                    <tr key={index}>
+                         <td>{index  + 1}</td>
+                        <td>{person['Quote Id']}</td>
+                        <td>{person['Quote Cost (Std)']}</td>
+                        <td>{person['Quote Status']}</td>
+                        <td>{person['Quote Prepared By']}</td>
+                        <td>{person['Quote Points']}</td>
+                    </tr>
+                )
+            })
+        }
+        {
+            !this.state.emp_data.length &&
+            <tr>
+                <td colSpan={12}>
+            <div className="d-flex justify-content-center">
+            <div className="spinner-border text-success" role="status">
+                <span className="sr-only">Loading...</span>
+            </div>
+            </div>
+                </td>
+            </tr> 
+        }
+        </tbody>
+        </table>
+        )
+    }
 }
