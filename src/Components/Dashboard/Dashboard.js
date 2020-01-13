@@ -318,16 +318,19 @@ export default class Dashboard extends Component {
         const totalPdc = this.sum(postdeliverypoint)
         const totalEligiblepoint = this.sum(eligiblepoint)
         var totalBooster = 0;
-        var totalEdp = totalFinalpoint*escaltions*(5/100);
+        
         var totalFeasibilitypoint = this.sum(feasibilitypoint);
         var totalQuotespoint = this.sum(quotesPoint);
         var totalTestymonypoint = this.sum(testimonyPoint);
+
         if(totalAlloted > (cutoffPoint.Cutoff *5)){
             totalBooster = totalAlloted*(20/100);
         }else{
             totalBooster = 0
         }
 
+        var totalEdpfordev = (totalFinalpoint + totalFeasibilitypoint + totalBooster)*escaltions*(5/100);
+        var totalEdpforpc = (totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster)*escaltions*(5/100);
         console.log(totalFeasibilitypoint);
         
 
@@ -411,10 +414,18 @@ export default class Dashboard extends Component {
                             <th className="makered">Number of Escalations</th>
                             <td className="makered">{escaltions}</td>
                         </tr>
-                        <tr>
-                            <th className="makered">Escalation Deduction Points</th>
-                            <td className="makered">{Math.round(totalEdp)}</td>
-                        </tr>
+                        {this.state.delights?(
+                            <tr>
+                                <th className="makered">Escalation Deduction Points</th>
+                                <td className="makered">{Math.round(totalEdpforpc)}</td>
+                            </tr>
+                        ):(
+                            <tr>
+                                <th className="makered">Escalation Deduction Points</th>
+                                <td className="makered">{Math.round(totalEdpfordev)}</td>
+                            </tr>
+                        )}
+                        
                         <tr>
                             <th>Efficiency Booster</th>
                             <td>{Math.round(totalBooster)}</td>
@@ -422,12 +433,12 @@ export default class Dashboard extends Component {
                         {this.state.delights?(
                             <tr className="highlight">
                                 <th>Payable Points</th>
-                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdp + totalBooster + totalQuotespoint + totalTestymonypoint)}</td>
+                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdpforpc)}</td>
                             </tr>
                         ):(
                             <tr className="highlight">
                                 <th>Payable Points</th>
-                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdp + totalBooster + totalFeasibilitypoint)}</td>
+                                <td>{Math.round(totalFinalpoint - (cutoffPoint.Cutoff) - totalEdpfordev)}</td>
                             </tr>
                         )}
                         
