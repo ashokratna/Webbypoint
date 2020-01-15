@@ -22,8 +22,9 @@ import logo from '../../img/download.png'
         var validEmail = email.split('@');
         if(validEmail[1] !== "uplers.in"){
             console.log('validated');
-            response.isSignedIn = false;
-          
+            response.isSignedIn = false;          
+        }else{
+            response.isSignedIn = true;
         }
         if(response.isSignedIn){
             localStorage.setItem('authData', JSON.stringify({token: response.tokenId, name: response.profileObj.name}));
