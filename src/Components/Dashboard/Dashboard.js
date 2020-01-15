@@ -34,14 +34,12 @@ export default class Dashboard extends Component {
                 data.Projects.elements.forEach((obj)=>{
                     return devKeys.forEach((str)=>{                        
                         if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())){
-                            // console.log(str);
+                           
                             if(str == 'PC1' || str == 'PC2'){
                                 particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                                 particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
-                                // return particularDelights.push(obj);
-                            }else{
-                                // console.log('Dev point table')
-                                // return particularFeasiblity.push(obj)
+                              
+                            }else{                               
                                 particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                             }
                         }
@@ -62,7 +60,6 @@ export default class Dashboard extends Component {
     }
 
     render() {
-        // console.log(this.state.delights);
         return (
             <div>
                 <nav aria-label="breadcrumb">
@@ -70,7 +67,10 @@ export default class Dashboard extends Component {
                         <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
                     </ol>
                 </nav>
-                <ul className="nav nav-tabs">
+                {this.state.emp_data.length ?
+                    (
+                    <React.Fragment>
+                    <ul className="nav nav-tabs">
                     <li className="nav-item" onClick={() => this.handleChangeTab(0)}>
                         <p className={`nav-link ${this.state.selectedTab === 0 ? 'active' : ''}`} href="#!">Points</p>
                     </li>
@@ -85,10 +85,19 @@ export default class Dashboard extends Component {
                         <p className={`nav-link ${this.state.selectedTab === 3 ? 'active' : ''}`} href="#!">Quotes</p>
                     </li>
                     ): null}
-                </ul>
-                {
-                    this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.state.selectedTab === 3 ? this.getQuotesPoint() :this.state.feasibilityPoint ? this.getFeasibilitytable() : this.getDelightPoint()
-                }
+                    </ul>                
+                    {
+                        this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.state.selectedTab === 3 ? this.getQuotesPoint() :this.state.feasibilityPoint ? this.getFeasibilitytable() : this.getDelightPoint()
+                    }
+                    </React.Fragment>
+                    ): (
+                        <div className="d-flex justify-content-center">
+                    <div className="spinner-border text-success" role="status">
+                        <span className="sr-only">Loading...</span>
+                    </div>
+                    </div>
+                    )}
+                
             </div>
         )
     }
