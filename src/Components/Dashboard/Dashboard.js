@@ -227,7 +227,7 @@ export default class Dashboard extends Component {
         const eligiblepoint = [];
         const finalpoint = [];
         const finalsum = []
-        var cutoffPoint = this.state.Cutoff;
+        var cutoffPoint = '';
         var escaltions = 0
         if(this.state.emp_data.length > 0){
             this.state.emp_data.map((person, index) => {                
@@ -280,7 +280,14 @@ export default class Dashboard extends Component {
             });
         }
 
-        // console.log(this.state.feasibilityPoint)
+        // console.log(this.state.feasibilityPoint)        
+        if(this.state.Cutoff === undefined){
+            cutoffPoint = 'Not found';           
+        }else{
+            cutoffPoint = this.state.Cutoff;
+        }
+
+        console.log(this.state.Cutoff)
 
         const feasibilitypoint = [];
         if(this.state.feasibilityPoint && this.state.feasibilityPoint.length > 0){
@@ -346,7 +353,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Your Quarterly Cut-off</th>
-                            <td>{cutoffPoint.Cutoff}</td>
+                            <td>{this.state.Cutoff === undefined ? 'Not found' : cutoffPoint.Cutoff}</td>
                         </tr>
                         <tr>
                             <th>Allotted Points</th>
@@ -408,7 +415,7 @@ export default class Dashboard extends Component {
                         </tr>
                         <tr>
                             <th>Cuttoff</th>
-                            <td>{cutoffPoint.Cutoff}</td>
+                            <td>{this.state.Cutoff === undefined ? 'Not found' : cutoffPoint.Cutoff}</td>
                         </tr>
                         <tr>
                             <th className="makered">Number of Escalations</th>
