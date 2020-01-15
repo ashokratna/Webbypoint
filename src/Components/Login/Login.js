@@ -17,6 +17,14 @@ import logo from '../../img/download.png'
     }
 
     responseGoogle = (response) => {
+        console.log(response.profileObj.email);
+        var email = response.profileObj.email;
+        var validEmail = email.split('@');
+        if(validEmail[1] !== "uplers.in"){
+            console.log('validated');
+            response.isSignedIn = false;
+          
+        }
         if(response.isSignedIn){
             localStorage.setItem('authData', JSON.stringify({token: response.tokenId, name: response.profileObj.name}));
             this.setState({ Authenticate: true, name: response.profileObj.name })
@@ -29,7 +37,6 @@ import logo from '../../img/download.png'
             <div>
                 {!this.state.Authenticate
                 ? (<div className="loginbtn">
-                    
                     <h2><img className='logoimg' src={logo} alt='logo'/> Uplers</h2>
                     <GoogleLogin
                     {...this.props}

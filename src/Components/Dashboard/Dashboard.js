@@ -34,13 +34,13 @@ export default class Dashboard extends Component {
                 data.Projects.elements.forEach((obj)=>{
                     return devKeys.forEach((str)=>{                        
                         if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())){
-                            console.log(str);
+                            // console.log(str);
                             if(str == 'PC1' || str == 'PC2'){
                                 particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                                 particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                                 // return particularDelights.push(obj);
                             }else{
-                                console.log('Dev point table')
+                                // console.log('Dev point table')
                                 // return particularFeasiblity.push(obj)
                                 particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === JSON.parse(localStorage.getItem('authData')).name.toLowerCase())
                             }
@@ -62,7 +62,7 @@ export default class Dashboard extends Component {
     }
 
     render() {
-        console.log(this.state.delights);
+        // console.log(this.state.delights);
         return (
             <div>
                 <nav aria-label="breadcrumb">
@@ -287,7 +287,7 @@ export default class Dashboard extends Component {
             cutoffPoint = this.state.Cutoff;
         }
 
-        console.log(this.state.Cutoff)
+        // console.log(this.state.Cutoff)
 
         const feasibilitypoint = [];
         if(this.state.feasibilityPoint && this.state.feasibilityPoint.length > 0){
@@ -310,7 +310,7 @@ export default class Dashboard extends Component {
             })
         }
         
-        console.log(testimonyPoint);
+        // console.log(testimonyPoint);
 
         finalpoint.forEach(function(el,i){
             finalsum.push(el.split(',').join(''))
@@ -338,7 +338,7 @@ export default class Dashboard extends Component {
 
         var totalEdpfordev = (totalFinalpoint + totalFeasibilitypoint + totalBooster)*escaltions*(5/100);
         var totalEdpforpc = (totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster)*escaltions*(5/100);
-        console.log(totalFeasibilitypoint);
+        // console.log(totalFeasibilitypoint);
         
 
         return (
@@ -463,7 +463,7 @@ export default class Dashboard extends Component {
     }
 
     getFeasibilitytable = () => {
-        console.log(this.state.feasibilityPoint)
+        // console.log(this.state.feasibilityPoint)
         return(
             <table className="user" width="100%">
             <thead>
@@ -507,7 +507,7 @@ export default class Dashboard extends Component {
     }
 
     getDelightPoint =() =>{
-        console.log('Delight Point Table here')
+        // console.log('Delight Point Table here')
         return(
             <table className="user" width="100%">
             <thead>
@@ -552,7 +552,7 @@ export default class Dashboard extends Component {
     }
     
     getQuotesPoint = () =>{
-        console.log(this.state.quotes);
+        // console.log(this.state.quotes);
         
         return(
             <table className="user" width="100%">
