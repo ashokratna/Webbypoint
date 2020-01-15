@@ -69,8 +69,14 @@
     margin-top: 100px;
   }
 
-  .loginbtn h2{
+  .loginbtn h2{     
+      padding-top: 30px;
       text-align: center;
+  }
+
+  .loginbtn p{
+    text-align: center;
+    color: red;
   }
 
   .loginbtn:hover {
@@ -79,6 +85,7 @@
 
   .loginbtn button {
     position: relative;
+    margin: 10px;
     left: 20%;
     top:25%
   }

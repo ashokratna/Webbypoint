@@ -21,7 +21,9 @@ import logo from '../../img/download.png'
         var email = response.profileObj.email;
         var validEmail = email.split('@');
         if(validEmail[1] !== "uplers.in"){
-            console.log('validated');
+            this.setState({
+                Authenticate:false
+            })
             response.isSignedIn = false;          
         }else{
             response.isSignedIn = true;
@@ -47,6 +49,7 @@ import logo from '../../img/download.png'
                     onFailure={this.responseGoogle}
                     cookiePolicy={'single_host_origin'}
                 />
+                <p>Please login with your uplers account!</p>
                 </div>
                 ): null}
 
