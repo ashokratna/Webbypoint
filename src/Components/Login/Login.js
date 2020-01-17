@@ -15,9 +15,9 @@ import logo from '../../img/download.png'
             this.setState({Authenticate: true, name: JSON.parse(localStorage.getItem('authData')).name})   
         }
     }
-
+// 
     responseGoogle = (response) => {
-        console.log(response.profileObj.email);
+        // console.log(response);
         var email = response.profileObj.email;
         var validEmail = email.split('@');
         if(validEmail[1] !== "uplers.in"){

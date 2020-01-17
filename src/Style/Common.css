@@ -90,6 +90,10 @@
     top:25%
   }
 
+  .modal {
+    display: block !important;
+  }
+
   .logoutbtn {
     display: flex;
     float: right;
@@ -267,4 +271,8 @@
 
   .nav-tabs li{
     cursor: pointer;
+  }
+
+  .float-right{
+    margin: 0 auto;
   }
