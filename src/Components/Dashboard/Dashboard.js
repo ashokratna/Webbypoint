@@ -9,13 +9,12 @@ import { REFUSED } from 'dns';
 const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert','PC1','PC2']
 export default class Dashboard extends Component {
     state={ employees : [], emp_data : [], filteredEmployee: [], Cutoff :'', selectedTab: 0, feasibilityPoint : [],
-    delights:[], quotes : [], searching:'', isAdmin: false, isModalOpen: false, search:'', isEmpSelected: false}
+    delights:[], quotes : [], searching:'', isAdmin: false, isModalOpen: false, search:'', isEmpSelected: false, error_msg:''}
 
     componentDidMount(){
 
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
-            // console.log(data);
             if(localStorage.getItem('authData')) {
                 const employeeName = data.database.elements;
                 const particularEmployee = [];
@@ -28,8 +27,8 @@ export default class Dashboard extends Component {
                   }
                 })
                 data.Projects.elements.forEach((obj) => {
-                    return devKeys.forEach((str)=>{                
-                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                           
+                    return devKeys.forEach((str)=>{
+                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
                             return particularEmployee.push(obj);
                         }
                     });
@@ -40,8 +39,6 @@ export default class Dashboard extends Component {
                 })
 
                 const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))
-                
-               
 
                 data.Projects.elements.forEach((obj)=>{
                     return devKeys.forEach((str)=>{                        
@@ -57,7 +54,7 @@ export default class Dashboard extends Component {
                         }
                     })                    
                 })
-                
+                               
                 this.setState({
                   emp_data: particularEmployee,
                   Cutoff: particularCutoff,
@@ -71,7 +68,6 @@ export default class Dashboard extends Component {
 
     componentDidUpdate = (props, state) => {
         if(this.state.search !== state.search) {
-            // console.log(this.state.search, 'assasa')
             Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
             callback: data=>{            
             if(localStorage.getItem('authData')) {
@@ -82,28 +78,32 @@ export default class Dashboard extends Component {
                 data.Projects.elements.forEach((obj) => {
                     return devKeys.forEach((str)=>{                
                         if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
-                            // console.log(obj);
                             return particularEmployee.push(obj);
                         }
                     });
                 })
-                
+
                 const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                 data.Projects.elements.forEach((obj)=>{
-                    return devKeys.forEach((str)=>{                        
-                        if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))){
-                           
+                    return devKeys.forEach((str)=>{
+                        if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))){
                             if(str == 'PC1' || str == 'PC2'){
                                 particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                                 particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
-                              
-                            }else{                               
+
+                            }else{
                                 particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                             }
                         }
-                    })                    
+                    })
                 })
                 
+                if(particularEmployee.length === 0){
+                    this.setState({
+                        error_msg : "No data found with this name!"
+                    })
+                               
+                }
                 this.setState({
                   emp_data: particularEmployee,
                   Cutoff: particularCutoff,
@@ -111,10 +111,7 @@ export default class Dashboard extends Component {
                   delights: particularDeights,
                   quotes:particularQuotes
                 } , () =>{
-                    // console.log(this.state);
                 })
-
-                
             }
         }});
         }
@@ -136,7 +133,6 @@ export default class Dashboard extends Component {
     }
 
     handleEmplist = (e) => {
-        // console.log(e.target.textContent);
         this.setState({
             search : e.target.textContent,
             isEmpSelected: true,
@@ -151,8 +147,8 @@ export default class Dashboard extends Component {
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
                         <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        {this.state.isAdmin && <li className="float-right">Search Employee <input type="text" onKeyUp ={this.handleFilter} placeholder="type here..." disabled={!this.state.isAdmin} /></li>}
-                        {this.state.isAdmin && 
+                        {!this.state.isEmpSelected && <li className="float-right">Search Employee <input type="text" onKeyUp ={this.handleFilter} placeholder="type here..." disabled={!this.state.isAdmin} /></li>}
+                        {this.state.isEmpSelected && 
                         <li className="float-right back_btn" onClick={this.handleBackbtn}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/></svg> Back 
                         </li>}
@@ -204,29 +200,34 @@ export default class Dashboard extends Component {
                                     )}
 
                                      {
-                                         this.state.isEmpSelected && (
+                                         this.state.isEmpSelected && this.state.emp_data.length > 0 ? (
                                              <>
-                                             <ul className="nav nav-tabs">
-                                                <li className="nav-item" onClick={() => this.handleChangeTab(0)}>
-                                                    <p className={`nav-link ${this.state.selectedTab === 0 ? 'active' : ''}`} href="#!">Points</p>
-                                                </li>
-                                                <li className="nav-item" onClick={() => this.handleChangeTab(1)}>
-                                                    <p className={`nav-link ${this.state.selectedTab === 1 ? 'active' : ''}`} href="#!">Projects</p>
-                                                </li>                    
-                                                <li className="nav-item" onClick={() => this.handleChangeTab(2)}>
-                                                    {this.state.feasibilityPoint? (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>) : (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Delights</p>) }                        
-                                                </li>
-                                                {this.state.delights ? (
-                                                    <li className="nav-item" onClick={() => this.handleChangeTab(3)}>
-                                                    <p className={`nav-link ${this.state.selectedTab === 3 ? 'active' : ''}`} href="#!">Quotes</p>
-                                                </li>
-                                                ): null}
-                                                </ul>                
+                                                <ul className="nav nav-tabs">
+                                                    <li className="nav-item" onClick={() => this.handleChangeTab(0)}>
+                                                        <p className={`nav-link ${this.state.selectedTab === 0 ? 'active' : ''}`} href="#!">Points</p>
+                                                    </li>
+                                                    <li className="nav-item" onClick={() => this.handleChangeTab(1)}>
+                                                        <p className={`nav-link ${this.state.selectedTab === 1 ? 'active' : ''}`} href="#!">Projects</p>
+                                                    </li>                    
+                                                    <li className="nav-item" onClick={() => this.handleChangeTab(2)}>
+                                                        {this.state.feasibilityPoint? (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>) : (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Delights</p>) }                        
+                                                    </li>
+                                                    {this.state.delights ? (
+                                                        <li className="nav-item" onClick={() => this.handleChangeTab(3)}>
+                                                        <p className={`nav-link ${this.state.selectedTab === 3 ? 'active' : ''}`} href="#!">Quotes</p>
+                                                    </li>
+                                                    ): null}
+                                                </ul>
                                                 {
                                                     this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.state.selectedTab === 3 ? this.getQuotesPoint() :this.state.feasibilityPoint ? this.getFeasibilitytable() : this.getDelightPoint()
                                                 }
                                              </>
-                                         )
+                                         ): this.state.error_msg.length !==0 ? (<h1>{this.state.error_msg}</h1>):(
+                                            <div className="d-flex justify-content-center">
+                                                <div className="spinner-border text-success" role="status">
+                                                    <span className="sr-only">Loading...</span>
+                                                </div>
+                                            </div>)
                                      }
                                 </ul>
 
@@ -245,8 +246,10 @@ export default class Dashboard extends Component {
 
     handleBackbtn = () => {
         this.setState({
-            isEmpSelected: false
+            emp_data : [], Cutoff :'', selectedTab: 0, feasibilityPoint : [],
+            delights:[], quotes : [],  search:'', isEmpSelected: false,filteredEmployee: this.state.employees, search:'', error_msg:''
         })
+         
     }
 
     getProjectTable =() => {
@@ -338,19 +341,19 @@ export default class Dashboard extends Component {
                     !this.state.emp_data.length &&
                     <tr>
                         <td colSpan={12}>
-                    <div className="d-flex justify-content-center">
-                    <div className="spinner-border text-success" role="status">
-                        <span className="sr-only">Loading...</span>
-                    </div>
-                    </div>
-                        </td>
+                        <div className="d-flex justify-content-center">
+                            <div className="spinner-border text-success" role="status">
+                                <span className="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </td>
                     </tr> 
                 }
 
                     </tbody>
                 </table>
         )
-    }
+    }   
 
     sum = (input)=>{
              
@@ -429,15 +432,12 @@ export default class Dashboard extends Component {
                 };
             });
         }
-
-        // console.log(this.state.feasibilityPoint)        
+     
         if(this.state.Cutoff === undefined){
             cutoffPoint = 'Not found';           
         }else{
             cutoffPoint = this.state.Cutoff;
         }
-
-        // console.log(this.state.Cutoff)
 
         const feasibilitypoint = [];
         if(this.state.feasibilityPoint && this.state.feasibilityPoint.length > 0){
@@ -460,7 +460,6 @@ export default class Dashboard extends Component {
             })
         }
         
-        // console.log(testimonyPoint);
 
         finalpoint.forEach(function(el,i){
             finalsum.push(el.split(',').join(''))
@@ -488,8 +487,7 @@ export default class Dashboard extends Component {
 
         var totalEdpfordev = (totalFinalpoint + totalFeasibilitypoint + totalBooster)*escaltions*(5/100);
         var totalEdpforpc = (totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster)*escaltions*(5/100);
-        // console.log(totalFeasibilitypoint);
-        
+   
 
         return (
             <div>
@@ -613,7 +611,6 @@ export default class Dashboard extends Component {
     }
 
     getFeasibilitytable = () => {
-        // console.log(this.state.feasibilityPoint)
         return(
             <table className="user" width="100%">
             <thead>
@@ -657,7 +654,6 @@ export default class Dashboard extends Component {
     }
 
     getDelightPoint =() =>{
-        // console.log('Delight Point Table here')
         return(
             <table className="user" width="100%">
             <thead>
@@ -702,7 +698,6 @@ export default class Dashboard extends Component {
     }
     
     getQuotesPoint = () =>{
-        // console.log(this.state.quotes);
         
         return(
             <table className="user" width="100%">
