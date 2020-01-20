@@ -129,6 +129,7 @@
   .navbar-global {
     background-color: indigo;
     position: fixed;
+    z-index: 999;
   }
   
   .navbar-global .navbar-brand {
