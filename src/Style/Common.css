@@ -276,3 +276,11 @@
   .float-right{
     margin: 0 auto;
   }
+
+  .breadcrumb .back_btn{
+    cursor: pointer;
+  }
+
+  .list-group a{
+    cursor: pointer;
+  }

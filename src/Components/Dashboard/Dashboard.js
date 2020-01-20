@@ -8,13 +8,14 @@ import { REFUSED } from 'dns';
 
 const devKeys = ['Dev1', 'Dev2', 'Dev3','Dev4','Dev5','Dev6','Expert','PC1','PC2']
 export default class Dashboard extends Component {
-    state={ employees : [], emp_data : [], filteredEmployee: [], Cutoff :'', selectedTab: 0, feasibilityPoint : [], delights:[], quotes : [], searching:'', isAdmin: false, isModalOpen: false}
+    state={ employees : [], emp_data : [], filteredEmployee: [], Cutoff :'', selectedTab: 0, feasibilityPoint : [],
+    delights:[], quotes : [], searching:'', isAdmin: false, isModalOpen: false, search:'', isEmpSelected: false}
 
     componentDidMount(){
 
         Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
         callback: data=>{
-            console.log(data);
+            // console.log(data);
             if(localStorage.getItem('authData')) {
                 const employeeName = data.database.elements;
                 const particularEmployee = [];
@@ -70,8 +71,9 @@ export default class Dashboard extends Component {
 
     componentDidUpdate = (props, state) => {
         if(this.state.search !== state.search) {
+            // console.log(this.state.search, 'assasa')
             Tabletop.init({ key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
-        callback: data=>{            
+            callback: data=>{            
             if(localStorage.getItem('authData')) {
                 const particularEmployee = [];
                 var particularDeights;
@@ -79,26 +81,24 @@ export default class Dashboard extends Component {
                 var particularQuotes;
                 data.Projects.elements.forEach((obj) => {
                     return devKeys.forEach((str)=>{                
-                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                        if(obj[`${str} Name`] !== '' &&  (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
+                            // console.log(obj);
                             return particularEmployee.push(obj);
                         }
                     });
                 })
-
-                const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))
                 
-               
-
+                const particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                 data.Projects.elements.forEach((obj)=>{
                     return devKeys.forEach((str)=>{                        
                         if(obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))){
                            
                             if(str == 'PC1' || str == 'PC2'){
-                                particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))
-                                particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))
+                                particularDeights = lodash.filter(data.Delights.elements, (emp) => emp["Brought By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
+                                particularQuotes = lodash.filter(data.Quotes.elements, (emp) => emp["Quote Prepared By"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                               
                             }else{                               
-                                particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))
+                                particularFeasiblepoint = lodash.filter(data.Quotes.elements, (emp) => emp["Feasibility Checked By (If Developer)"].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))
                             }
                         }
                     })                    
@@ -110,11 +110,14 @@ export default class Dashboard extends Component {
                   feasibilityPoint : particularFeasiblepoint,
                   delights: particularDeights,
                   quotes:particularQuotes
+                } , () =>{
+                    // console.log(this.state);
                 })
+
+                
             }
         }});
         }
-        
     }
 
     handleFilter = (e) => {
@@ -133,19 +136,25 @@ export default class Dashboard extends Component {
     }
 
     handleEmplist = (e) => {
-        console.log(e.target.textContent);
+        // console.log(e.target.textContent);
+        this.setState({
+            search : e.target.textContent,
+            isEmpSelected: true,
+            emp_data:[]
+        });
     }
 
     render() {
-
+                            
         return (
             <div>
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
                         <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        {this.state.isAdmin && <li className="float-right"><input type="text" onKeyUp ={this.handleFilter} placeholder="type here..." disabled={!this.state.isAdmin} />  </li>}
-                        {!this.state.isAdmin && <li className="float-right">
-                            <button type="button" onClick={this.handleAdminButton}> Admin </button>
+                        {this.state.isAdmin && <li className="float-right">Search Employee <input type="text" onKeyUp ={this.handleFilter} placeholder="type here..." disabled={!this.state.isAdmin} /></li>}
+                        {this.state.isAdmin && 
+                        <li className="float-right back_btn" onClick={this.handleBackbtn}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/></svg> Back 
                         </li>}
                     </ol>
                 </nav>
@@ -190,9 +199,35 @@ export default class Dashboard extends Component {
                                 
                                 <ul className="list-group">
                                     {
-                                        this.state.filteredEmployee.map((person, index) =>                                
+                                       !this.state.isEmpSelected && this.state.filteredEmployee.map((person, index) =>                                
                                              <li key={index} className="list-group-item"><a><span>{index + 1}</span> &nbsp; <span className="employee_name" onClick={this.handleEmplist} >{person["Employe Name"]}</span></a></li>  
                                     )}
+
+                                     {
+                                         this.state.isEmpSelected && (
+                                             <>
+                                             <ul className="nav nav-tabs">
+                                                <li className="nav-item" onClick={() => this.handleChangeTab(0)}>
+                                                    <p className={`nav-link ${this.state.selectedTab === 0 ? 'active' : ''}`} href="#!">Points</p>
+                                                </li>
+                                                <li className="nav-item" onClick={() => this.handleChangeTab(1)}>
+                                                    <p className={`nav-link ${this.state.selectedTab === 1 ? 'active' : ''}`} href="#!">Projects</p>
+                                                </li>                    
+                                                <li className="nav-item" onClick={() => this.handleChangeTab(2)}>
+                                                    {this.state.feasibilityPoint? (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Feasibility</p>) : (<p className={`nav-link ${this.state.selectedTab === 2 ? 'active' : ''}`} href="#!">Delights</p>) }                        
+                                                </li>
+                                                {this.state.delights ? (
+                                                    <li className="nav-item" onClick={() => this.handleChangeTab(3)}>
+                                                    <p className={`nav-link ${this.state.selectedTab === 3 ? 'active' : ''}`} href="#!">Quotes</p>
+                                                </li>
+                                                ): null}
+                                                </ul>                
+                                                {
+                                                    this.state.selectedTab === 0 ? this.getPointTable() : this.state.selectedTab === 1 ? this.getProjectTable() : this.state.selectedTab === 3 ? this.getQuotesPoint() :this.state.feasibilityPoint ? this.getFeasibilitytable() : this.getDelightPoint()
+                                                }
+                                             </>
+                                         )
+                                     }
                                 </ul>
 
                             )
@@ -208,9 +243,9 @@ export default class Dashboard extends Component {
         });
     }
 
-    handleAdminButton = () => {
+    handleBackbtn = () => {
         this.setState({
-            isModalOpen: true
+            isEmpSelected: false
         })
     }
 
@@ -248,49 +283,49 @@ export default class Dashboard extends Component {
                                 <td>{person['Point Type']}</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                       
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                       
                                             return person[`${str} Points`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} Kickoff`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} Retention`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} TImely Delivery`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} PDC Points`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} Eligible`];
                                         }
                                     })
                                 }</td>
                                 <td>{
                                     devKeys.map((str)=>{
-                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {
+                                        if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {
                                             return person[`${str} Final`];
                                         }
                                     })
@@ -347,43 +382,43 @@ export default class Dashboard extends Component {
         if(this.state.emp_data.length > 0){
             this.state.emp_data.map((person, index) => {                
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                       
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                       
                         return allocated.push(person[`${str} Points`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {            
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {            
                         return kickoff.push(person[`${str} Kickoff`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                                                              
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                                                              
                         return retention.push(person[`${str} Retention`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                                                              
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                                                              
                         return timelydelivery.push(person[`${str} TImely Delivery`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                                                              
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                                                              
                         return postdeliverypoint.push(person[`${str} PDC Points`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                                                              
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                                                              
                         return eligiblepoint.push(person[`${str} Eligible`])          
                     }
                 })
 
                 devKeys.map((str)=>{
-                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search))) {                                                                                                                              
+                    if(person[`${str} Name`] !== '' &&  (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase()))) {                                                                                                                              
                         return finalpoint.push(person[`${str} Final`])          
                     }
                 })
@@ -464,7 +499,7 @@ export default class Dashboard extends Component {
                         <tbody>
                         <tr className="highlight">
                             <th>Name</th>
-                            <td className="text-capitalize">{(this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search)}</td>
+                            <td className="text-capitalize">{(this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase(): this.state.search.toLowerCase())}</td>
                         </tr>
                         <tr>
                             <th>Your Quarterly Cut-off</th>
