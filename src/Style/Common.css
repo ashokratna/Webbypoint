@@ -285,3 +285,11 @@
   .list-group a{
     cursor: pointer;
   }
+
+  tbody .employee_name{
+    cursor: pointer;
+  }
+
+  .table th {
+    cursor: pointer;
+  }

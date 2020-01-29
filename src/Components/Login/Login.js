@@ -15,9 +15,9 @@ import logo from '../../img/download.png'
             this.setState({Authenticate: true, name: JSON.parse(localStorage.getItem('authData')).name})   
         }
     }
-// 
+
     responseGoogle = (response) => {
-        // console.log(response);
+
         var email = response.profileObj.email;
         var validEmail = email.split('@');
         if(validEmail[1] !== "uplers.in"){
@@ -47,7 +47,6 @@ import logo from '../../img/download.png'
                     buttonText="Login with Google"
                     onSuccess={this.responseGoogle}
                     onFailure={this.responseGoogle}
-                    cookiePolicy={'single_host_origin'}
                 />
                 <p>Please login with your uplers account!</p>
                 </div>
