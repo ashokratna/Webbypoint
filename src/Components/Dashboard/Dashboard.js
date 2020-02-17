@@ -28,6 +28,7 @@ export default class Dashboard extends Component {
         objCuttoff.particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === name.toLowerCase());
         return objCuttoff;
     }
+    
 
     getOtherData = (name, data, object) => {
         data.Projects.elements.forEach((obj) => {
@@ -47,8 +48,12 @@ export default class Dashboard extends Component {
 
     }
 
-    renderTable = (sortedState) => {
+    // filteredEmployeeEmplist = () => {
+        
+    // }
 
+    
+    renderTable = (sortedState) => {
         empList = this.state.filteredEmployee.map((person, index) => {
             const objectEmp = {};
             const particularEmployeeSheetData = this.getParticularEmployee(person["Employe Name"].toLowerCase(), this.state.sheetData, []);
@@ -58,7 +63,7 @@ export default class Dashboard extends Component {
             this.getParticularCutoff(person["Employe Name"].toLowerCase(), this.state.sheetData, objCuttoff);
             const data = this.getEmployeesCutOfAndAllotedPoints(particularEmployeeSheetData, person["Employe Name"].toLowerCase(), objCuttoff.particularCutoff.Cutoff, object);
             objectEmp['sr'] = index + 1;
-            objectEmp['name'] = person["Employe Name"];
+            objectEmp['Employe Name'] = person["Employe Name"];
             objectEmp['cutOff'] = objCuttoff.particularCutoff && objCuttoff.particularCutoff.Cutoff;
             objectEmp['allotedPoint'] = Math.round(data.allotedPoint);
             objectEmp['payablePoint'] = object.particularFeasiblepoint.length > 0
@@ -66,12 +71,14 @@ export default class Dashboard extends Component {
                 Math.round(data.payablePointDev)
                 :
                 object.particularDeights.length > 0 && object.particularQuotes.length > 0
-                    ?
-                    Math.round(data.payblePontPc) : 0
+                ?
+                Math.round(data.payblePontPc) : 0
             return objectEmp;
-        })
-        var checkList = this.state.tempSort ? empList : sortedEmpList;
+        });
 
+        var checkList = this.state.tempSort ? empList : sortedEmpList;
+        console.log(checkList, this.state.tempSort);
+        
         return (
             <>
                 {
@@ -80,7 +87,7 @@ export default class Dashboard extends Component {
                             <tbody key={index}>
                                 <tr>
                                     <th scope="row"><span>{person.sr}</span> </th>
-                                    <td><a><span className="employee_name" onClick={this.handleEmplist} >{person.name}</span></a></td>
+                                    <td><a><span className="employee_name" onClick={this.handleEmplist} >{person["Employe Name"]}</span></a></td>
                                     <td>{person.cutOff}</td>
                                     <td>{person.allotedPoint}</td>
                                     <td>{person.payablePoint}
@@ -210,18 +217,17 @@ export default class Dashboard extends Component {
             if(this.state.tempSort){
                 employeeList = employeeList.filter((person => person["Employe Name"].toLowerCase().indexOf(searchEmp) > -1)) 
             }
-            // else{
-            //     console.log(sortEmp);
-                
-            //    employeeList = sortedEmpList.filter((person => person["Employe Name"]))
-            // //    console.log(employeeList);
-            //    return false
-               
-            // }
+            else{
+               employeeList = sortedEmpList.filter((person => person["Employe Name"].toLowerCase().indexOf(searchEmp) > -1))
+            }
+            
             this.setState({
                 filteredEmployee: employeeList
+            } , () => {
+                console.log(this.state.filteredEmployee);
             });
         } else {
+            
             this.setState({
                 filteredEmployee: this.state.employees
             });
@@ -242,7 +248,7 @@ export default class Dashboard extends Component {
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
                         <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
-                        {!this.state.isEmpSelected && <li className="float-right">Search Employee <input type="text" onKeyUp={this.handleFilter} placeholder="type here..." disabled={!this.state.isAdmin} /></li>}
+                        {!this.state.isEmpSelected && this.state.isAdmin && <li className="float-right"><span>Search Employee</span><input type="text" onKeyUp={this.handleFilter} placeholder="type here..."/></li>}
                         {this.state.isEmpSelected &&
                             <li className="float-right back_btn" onClick={this.handleBackbtn}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z" /></svg> Back
@@ -488,6 +494,8 @@ export default class Dashboard extends Component {
 
 
     getProjectTable = () => {
+        console.log(this.state.emp_data);
+        
         return (
             <table className="user" width="100%">
                 <thead>
@@ -508,7 +516,6 @@ export default class Dashboard extends Component {
                     </tr>
                 </thead>
                 <tbody>
-
                     {
                         !!this.state.emp_data.length && this.state.emp_data.map((person, index) => {
                             return (
@@ -520,15 +527,23 @@ export default class Dashboard extends Component {
                                     <td>{person['Client Feedback']}</td>
                                     <td>{person['Point Type']}</td>
                                     <td>{
-                                        devKeys.map((str) => {
-                                            if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
-                                                return person[`${str} Points`];
-                                            }
-                                        })
+                                        (
+                                            devKeys.map((str) => {
+                                                if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
+                                                    if(person['Point Type'] !== "CF Feedback"){
+                                                        return person[`${str} Points`];                                              
+                                                    }else{
+                                                        return 0;   
+                                                    }
+                                                }
+                                            })
+                                        )                                        
                                     }</td>
                                     <td>{
                                         devKeys.map((str) => {
+                                            // console.log(str);    
                                             if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
+                                               
                                                 return person[`${str} Kickoff`];
                                             }
                                         })
