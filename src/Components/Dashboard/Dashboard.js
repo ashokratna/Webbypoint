@@ -5,6 +5,8 @@ import Tabletop from "tabletop";
 import $ from 'jquery';
 import { throwStatement } from '@babel/types';
 import { REFUSED } from 'dns';
+import  loader  from '../../img/loader.png'
+
 let empList, sortedEmpList;
 const devKeys = ['Dev1', 'Dev2', 'Dev3', 'Dev4', 'Dev5', 'Dev6', 'Expert', 'PC1', 'PC2'];
 export default class Dashboard extends Component {
@@ -25,7 +27,9 @@ export default class Dashboard extends Component {
     }
 
     getParticularCutoff = (name, data, objCuttoff) => {
-        objCuttoff.particularCutoff = lodash.find(data.Cutoff.elements, (emp) => emp.Developer.toString().toLowerCase() === name.toLowerCase());
+        // console.log(data.Employees.elements)
+        // cutoff se ni employee se get krna h Developer me changes h
+        objCuttoff.particularCutoff = lodash.find(data.Employees.elements, (emp) =>  emp.Employee.toString().toLowerCase() === name.toLowerCase());
         return objCuttoff;
     }
     
@@ -54,16 +58,21 @@ export default class Dashboard extends Component {
 
     
     renderTable = (sortedState) => {
+        console.log(this.state.filteredEmployee)
         empList = this.state.filteredEmployee.map((person, index) => {
+            console.log(person)
             const objectEmp = {};
-            const particularEmployeeSheetData = this.getParticularEmployee(person["Employe Name"].toLowerCase(), this.state.sheetData, []);
+            const particularEmployeeSheetData = this.getParticularEmployee(person["Employee"].toLowerCase(), this.state.sheetData, []);
+            console.log(person["Employee"])
             let objCuttoff = { particularCutoff: {} }
+            // 
             let object = { particularFeasiblepoint: [], particularDeights: [], particularQuotes: [] }
-            object = this.getOtherData(person["Employe Name"].toLowerCase(), this.state.sheetData, object)
-            this.getParticularCutoff(person["Employe Name"].toLowerCase(), this.state.sheetData, objCuttoff);
-            const data = this.getEmployeesCutOfAndAllotedPoints(particularEmployeeSheetData, person["Employe Name"].toLowerCase(), objCuttoff.particularCutoff.Cutoff, object);
+            object = this.getOtherData(person["Employee"].toLowerCase(), this.state.sheetData, object);
+                     this.getParticularCutoff(person["Employee"].toLowerCase(), this.state.sheetData, objCuttoff);
+                     console.log(objCuttoff)
+            const data = this.getEmployeesCutOfAndAllotedPoints(particularEmployeeSheetData, person["Employee"].toLowerCase(), objCuttoff.particularCutoff.Cutoff, object);
             objectEmp['sr'] = index + 1;
-            objectEmp['Employe Name'] = person["Employe Name"];
+            objectEmp['Employee'] = person["Employee"];
             objectEmp['cutOff'] = objCuttoff.particularCutoff && objCuttoff.particularCutoff.Cutoff;
             objectEmp['allotedPoint'] = Math.round(data.allotedPoint);
             objectEmp['payablePoint'] = object.particularFeasiblepoint.length > 0
@@ -77,7 +86,7 @@ export default class Dashboard extends Component {
         });
 
         var checkList = this.state.tempSort ? empList : sortedEmpList;
-        console.log(checkList, this.state.tempSort);
+        // console.log(checkList, this.state.tempSort);
         
         return (
             <>
@@ -87,7 +96,7 @@ export default class Dashboard extends Component {
                             <tbody key={index}>
                                 <tr>
                                     <th scope="row"><span>{person.sr}</span> </th>
-                                    <td><a><span className="employee_name" onClick={this.handleEmplist} >{person["Employe Name"]}</span></a></td>
+                                    <td><a><span className="employee_name" onClick={this.handleEmplist} >{person["Employe"]}</span></a></td>
                                     <td>{person.cutOff}</td>
                                     <td>{person.allotedPoint}</td>
                                     <td>{person.payablePoint}
@@ -149,28 +158,48 @@ export default class Dashboard extends Component {
             return false;
         }
     };
-
+    //new
+    // https://docs.google.com/spreadsheets/d/1beQPRff7mhiEJwBQ2OSRd5S_oyuqdxc0p6sK25G7Phk/
+    // https://docs.google.com/spreadsheets/d/1beQPRff7mhiEJwBQ2OSRd5S_oyuqdxc0p6sK25G7Phk/edit#gid=0
+    //old
+    // https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0
     getApiCall = (name) => {
+        window.googleDocCallback = function () { return true; };
         Tabletop.init({
-            key: 'https://docs.google.com/spreadsheets/d/1LiWlQHawZaLkaN7S_YMTlvg-CEQfBQ-EaO4nVDHda3Y/edit#gid=0',
+            key: 'https://docs.google.com/spreadsheets/d/1beQPRff7mhiEJwBQ2OSRd5S_oyuqdxc0p6sK25G7Phk/edit#gid=0',
             callback: data => {
+
+                // console.log(data.database.elements);
+
                 if (localStorage.getItem('authData')) {
-                    const employeeName = data.database.elements;
+                    
+                    //fetching all the employee list from database- now have to fetch it from employees
+                   
+                    const employeeName = data.Employees.elements;
                     const particularEmployee = [];
                     const particularCutoff = [];
-                    data.database.elements.forEach((obj) => {
-                        if (obj['Admin'] && obj['Admin'] !== '' && obj['Admin'].toLowerCase() === name) {
+                    
+                    // admin is now super admin from employee
+
+                    // console.log(employeeName)
+
+                    data.Employees.elements.forEach((obj) => {
+                        if (obj['Super Admin'] && obj['Super Admin'] !== '' && obj['Super Admin'].toLowerCase() === name) {
                             this.setState({ isAdmin: true })
                         }
                     })
 
+                    console.log(this.state.isAdmin)
+
                     this.setState({
                         emp_data: this.getParticularEmployee(name, data, particularEmployee)
                     });
+
                     this.setState({
                         employees: employeeName, filteredEmployee: employeeName, sheetData: data
                     })
 
+                    console.log(this.state.filteredEmployee)
                     const objCuttoff = { particularCutoff: [] }
 
                     this.getParticularCutoff(name, data, objCuttoff)
@@ -186,12 +215,14 @@ export default class Dashboard extends Component {
                             error_msg: 'No data found with this name!'
                         })
                     }
+
                     this.setState({
                         Cutoff: objCuttoff.particularCutoff.Cutoff,
                         feasibilityPoint: object.particularFeasiblepoint,
                         delights: object.particularDeights,
                         quotes: object.particularQuotes
                     })
+                    
                 }
             }
         });
@@ -215,10 +246,10 @@ export default class Dashboard extends Component {
             
         if (searchEmp.length > 0) {
             if(this.state.tempSort){
-                employeeList = employeeList.filter((person => person["Employe Name"].toLowerCase().indexOf(searchEmp) > -1)) 
+                employeeList = employeeList.filter((person => person["Employee"].toLowerCase().indexOf(searchEmp) > -1)) 
             }
             else{
-               employeeList = sortedEmpList.filter((person => person["Employe Name"].toLowerCase().indexOf(searchEmp) > -1))
+               employeeList = sortedEmpList.filter((person => person["Employee"].toLowerCase().indexOf(searchEmp) > -1))
             }
             
             this.setState({
@@ -286,12 +317,12 @@ export default class Dashboard extends Component {
                                                         this.state.selectedTab === 2 && this.state.feasibilityPoint.length ? this.getFeasibilitytable() : this.getDelightPoint()
                                         }
                                     </React.Fragment>
-                                ) : this.state.error_msg.length !== 0 ? (<h1>{this.state.error_msg}</h1>) : (
-                                    <div className="d-flex justify-content-center">
-                                        <div className="spinner-border text-success" role="status">
-                                            <span className="sr-only">Loading...</span>
-                                        </div>
-                                    </div>)
+                                ) : this.state.error_msg.length !== 0 ? (<h1>{this.state.error_msg}</h1>) : 
+                                    (
+                                    <div className="text-center">
+                                        <img src={loader} alt="loader"/>
+                                    </div>  
+                                    )
                         }
                     </>
                 )}
@@ -344,11 +375,9 @@ export default class Dashboard extends Component {
                                     ) : this.state.error_msg.length !== 0  ? (<h1>{this.state.error_msg}</h1>)
                                         : this.state.isEmpSelected ?
                                         (
-                                            <div className="d-flex justify-content-center">
-                                                <div className="spinner-border text-success" role="status">
-                                                    <span className="sr-only">Loading...</span>
-                                                </div>
-                                            </div>
+                                            <div className="text-center">
+                                                <img src={loader} alt="loader"/>
+                                            </div>  
                                         ): null
                             }
                         </table>
@@ -591,11 +620,9 @@ export default class Dashboard extends Component {
                         !this.state.emp_data.length &&
                         <tr>
                             <td colSpan={12}>
-                                <div className="d-flex justify-content-center">
-                                    <div className="spinner-border text-success" role="status">
-                                        <span className="sr-only">Loading...</span>
-                                    </div>
-                                </div>
+                            <div className="text-center">
+                                    <img src={loader} alt="loader"/>
+                                </div>  
                             </td>
                         </tr>
                     }
@@ -851,11 +878,9 @@ export default class Dashboard extends Component {
                             </tbody>
                         </table>
                     ) :
-                        (<div className="d-flex justify-content-center">
-                            <div className="spinner-border text-success" role="status">
-                                <span className="sr-only">Loading...</span>
-                            </div>
-                        </div>)
+                        (<div className="text-center">
+                            <img src={loader} alt="loader"/>
+                        </div>  )
                 }
             </div>
         )
@@ -890,11 +915,9 @@ export default class Dashboard extends Component {
                         !this.state.emp_data.length &&
                         <tr>
                             <td colSpan={12}>
-                                <div className="d-flex justify-content-center">
-                                    <div className="spinner-border text-success" role="status">
-                                        <span className="sr-only">Loading...</span>
-                                    </div>
-                                </div>
+                                <div className="text-center">
+                                        <img src={loader} alt="loader"/>
+                                </div>  
                             </td>
                         </tr>
                     }
@@ -937,11 +960,9 @@ export default class Dashboard extends Component {
                         !this.state.emp_data.length &&
                         <tr>
                             <td colSpan={12}>
-                                <div className="d-flex justify-content-center">
-                                    <div className="spinner-border text-success" role="status">
-                                        <span className="sr-only">Loading...</span>
-                                    </div>
-                                </div>
+                                <div className="text-center">
+                                        <img src={loader} alt="loader"/>
+                                </div>  
                             </td>
                         </tr>
                     }
@@ -981,11 +1002,9 @@ export default class Dashboard extends Component {
                         !this.state.emp_data.length &&
                         <tr>
                             <td colSpan={12}>
-                                <div className="d-flex justify-content-center">
-                                    <div className="spinner-border text-success" role="status">
-                                        <span className="sr-only">Loading...</span>
-                                    </div>
-                                </div>
+                                <div className="text-center">
+                                    <img src={loader} alt="loader"/>
+                                </div>                                
                             </td>
                         </tr>
                     }
