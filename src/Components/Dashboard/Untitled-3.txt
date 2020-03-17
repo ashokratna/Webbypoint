@@ -3,7 +3,7 @@ import * as lodash from 'lodash';
 import '../../Style/Common.css';
 import Tabletop from "tabletop";
 import $ from 'jquery';
-import { throwStatement, isJSXClosingFragment } from '@babel/types';
+import { throwStatement } from '@babel/types';
 import { REFUSED } from 'dns';
 import  loader  from '../../img/loader.png'
 
@@ -18,7 +18,6 @@ export default class Dashboard extends Component {
     getParticularEmployee = (name, data, particularEmployee) => {
         data.Projects.elements.forEach((obj) => {
             return devKeys.forEach((str) => {
-                
                 if (obj[`${str} Name`] !== '' && (obj[`${str} Name`].toLowerCase() === name)) {
                     return particularEmployee.push(obj);
                 }
@@ -28,7 +27,7 @@ export default class Dashboard extends Component {
     }
 
     getParticularCutoff = (name, data, objCuttoff) => {
-        
+        // console.log(data.Employees.elements)
         // cutoff se ni employee se get krna h Developer me changes h
        
         objCuttoff.particularCutoff = lodash.find(data.Employees.elements, (emp) =>  emp.Employee.toString().toLowerCase() === name.toLowerCase());
@@ -55,26 +54,28 @@ export default class Dashboard extends Component {
 
     }
 
+    // filteredEmployeeEmplist = () => {
+        
+    // }
 
     
     renderTable = (sortedState) => {
-        
+        console.log(this.state.filteredEmployee)
         empList = this.state.filteredEmployee.map((person, index) => {
-            
+            // console.log(person)
             const objectEmp = {};
             const particularEmployeeSheetData = this.getParticularEmployee(person["Employee"].toLowerCase(), this.state.sheetData, []);
-
+            // console.log(person["Employee"])
             let objCuttoff = { particularCutoff: {} }
-            
+            // 
             let object = { particularFeasiblepoint: [], particularDeights: [], particularQuotes: [] }
             object = this.getOtherData(person["Employee"].toLowerCase(), this.state.sheetData, object);
                      this.getParticularCutoff(person["Employee"].toLowerCase(), this.state.sheetData, objCuttoff);
-
+                  
             const data = this.getEmployeesCutOfAndAllotedPoints(particularEmployeeSheetData, person["Employee"].toLowerCase(), objCuttoff.particularCutoff.Cutoff, object);
-            
             objectEmp['sr'] = index + 1;
             objectEmp['Employee'] = person["Employee"];
-            objectEmp['Cutoff'] = objCuttoff.particularCutoff ? objCuttoff.particularCutoff.Cutoff : 0;
+            objectEmp['Cutoff'] = objCuttoff.particularCutoff && objCuttoff.particularCutoff.Cutoff;
             objectEmp['allotedPoint'] = Math.round(data.allotedPoint);
             objectEmp['payablePoint'] = object.particularFeasiblepoint.length > 0
                 ?
@@ -87,7 +88,8 @@ export default class Dashboard extends Component {
         });
 
         var checkList = this.state.tempSort ? empList : sortedEmpList;
-
+        // console.log(checkList, this.state.tempSort);
+        
         return (
             <>
                 {
@@ -97,9 +99,9 @@ export default class Dashboard extends Component {
                                 <tr>
                                     <th scope="row"><span>{person.sr}</span> </th>
                                     <td><a><span className="employee_name" onClick={this.handleEmplist} >{person["Employee"]}</span></a></td>
-                                    <td>{person.Cutoff}</td>
+                                    <td>{person.cutOff}</td>
                                     <td>{person.allotedPoint}</td>
-                                    <td>{person.payablePoint > 0 ? person.payablePoint : 0 }
+                                    <td>{person.payablePoint}
                                     </td>
                                 </tr>
                             </tbody>
@@ -115,13 +117,13 @@ export default class Dashboard extends Component {
     asdSort_Cutoff = () => {
         this.setState({ tempSort: false });
         if (!this.state.sorted) {
-            sortedEmpList = empList.sort((a, b) => parseFloat(a.Cutoff) - parseFloat(b.Cutoff));
+            sortedEmpList = empList.sort((a, b) => parseFloat(a.cutOff) - parseFloat(b.cutOff));
             this.setState({ asc: true, sorted: true });
             this.renderTable(this.state.renderTable);
             return false;
         } else if (this.state.sorted) {
             this.setState({ sorted: false, asc: false });
-            sortedEmpList = sortedEmpList.sort((a, b) => (parseFloat(a.Cutoff) > parseFloat(b.Cutoff) ? -1 : 1));
+            sortedEmpList = sortedEmpList.sort((a, b) => (parseFloat(a.cutOff) > parseFloat(b.cutOff) ? -1 : 1));
             this.renderTable(this.state.renderTable);
             return false;
         }
@@ -167,6 +169,8 @@ export default class Dashboard extends Component {
         Tabletop.init({
             key: 'https://docs.google.com/spreadsheets/d/1beQPRff7mhiEJwBQ2OSRd5S_oyuqdxc0p6sK25G7Phk/edit#gid=0',
             callback: data => {
+                console.log(data.Projects.elements);
+
                 if (localStorage.getItem('authData')) {
                     
                     //fetching all the employee list from database- now have to fetch it from employees
@@ -175,16 +179,21 @@ export default class Dashboard extends Component {
                     const particularEmployee = [];
                     const particularCutoff = [];
                     
+                    // admin is now super admin from employee
+
+                    // console.log(employeeName)
+
                     data.Employees.elements.forEach((obj) => {
                         if (obj['Super Admin'] && obj['Super Admin'] !== '' && obj['Super Admin'].toLowerCase() === name) {
                             this.setState({ isAdmin: true })
                         }
                     })
 
-                        this.setState({
-                            emp_data: this.getParticularEmployee(name, data, particularEmployee)
-                        });
-                    
+                    // console.log(this.state.isAdmin)
+
+                    this.setState({
+                        emp_data: this.getParticularEmployee(name, data, particularEmployee)
+                    });
 
                     this.setState({
                         employees: employeeName, filteredEmployee: employeeName, sheetData: data
@@ -200,13 +209,15 @@ export default class Dashboard extends Component {
 
                     this.getOtherData(name, data, object)
 
-                    
+                    console.log(particularEmployee);
 
-                    if (particularEmployee.length === 0 && !this.state.isAdmin) {  
+                    if (particularEmployee.length === 0) {
                         this.setState({
                             error_msg: 'No data found with this name!'
                         })
                     }
+
+                    console.log(objCuttoff, 'as', name, data)
 
                     this.setState({
                         Cutoff: objCuttoff.particularCutoff ? objCuttoff.particularCutoff.Cutoff: 0,
@@ -275,8 +286,7 @@ export default class Dashboard extends Component {
                         {this.state.isEmpSelected &&
                             <li className="float-right back_btn" onClick={this.handleBackbtn}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z" /></svg> Back
-                            </li>
-                        }
+                            </li>}
                     </ol>
                 </nav>
                 {!this.state.isAdmin && (
@@ -411,7 +421,7 @@ export default class Dashboard extends Component {
 
             emp_data.map((person, index) => {
                 devKeys.map((str) => {
-                    if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === name && person['Point Type'] !== "CF-Feedback")) {
+                    if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === name)) {
                         return allocated.push(person[`${str} Points`])
                     }
                 })
@@ -502,13 +512,12 @@ export default class Dashboard extends Component {
         } else {
             totalBooster = 0
         }
-        
+
         var totalEdpfordev = (totalFinalpoint + totalFeasibilitypoint + totalBooster) * escaltions * (5 / 100);
 
         var totalEdpforpc = (totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) * escaltions * (5 / 100);
-        //payablepoint for dev
+
         var payablePointDev = Math.round((totalFinalpoint + totalFeasibilitypoint + totalBooster) - (cutoffPoint) - totalEdpfordev);
-        //payablepoint for pc
         var payablePointPc = Math.round((totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) - (cutoffPoint) - totalEdpforpc)
 
         return { cutoffPoint: cutoffPoint, allotedPoint: totalAlloted, payablePointDev: payablePointDev, payblePontPc: payablePointPc }
@@ -553,7 +562,7 @@ export default class Dashboard extends Component {
                                         (
                                             devKeys.map((str) => {
                                                 if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
-                                                    if(person['Point Type'] !== "CF-Feedback"){
+                                                    if(person['Point Type'] !== "CF Feedback"){
                                                         return person[`${str} Points`];                                              
                                                     }else{
                                                         return 0;   
@@ -655,7 +664,7 @@ export default class Dashboard extends Component {
         if (this.state.emp_data.length > 0) {
             this.state.emp_data.map((person, index) => {
                 devKeys.map((str) => {
-                    if (person[`${str} Name`] !== '' && person["Point Type"] !== "CF-Feedback"  && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
+                    if (person[`${str} Name`] !== '' && (person[`${str} Name`].toLowerCase() === (this.state.search === '' ? JSON.parse(localStorage.getItem('authData')).name.toLowerCase() : this.state.search.toLowerCase()))) {
                         return allocated.push(person[`${str} Points`])
                     }
                 })
@@ -862,11 +871,13 @@ export default class Dashboard extends Component {
                                     {
                                         this.state.delights.length !== 0
                                             ?
-                                            (<td>{Math.round((totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) - (cutoffPoint) - totalEdpforpc) > 0 ? Math.round((totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) - (cutoffPoint) - totalEdpforpc) : 0 }</td>)
+                                            (<td>{Math.round((totalFinalpoint + totalQuotespoint + totalTestymonypoint + totalBooster) - (cutoffPoint) - totalEdpforpc)}</td>)
                                             :
-                                            (<td>{Math.round((totalFinalpoint + totalFeasibilitypoint + totalBooster) - (cutoffPoint) - totalEdpfordev) > 0 ? Math.round((totalFinalpoint + totalFeasibilitypoint + totalBooster) - (cutoffPoint) - totalEdpfordev) : 0}</td>)
+                                            (<td>{Math.round((totalFinalpoint + totalFeasibilitypoint + totalBooster) - (cutoffPoint) - totalEdpfordev)}</td>)
                                     }
                                 </tr>
+
+
                             </tbody>
                         </table>
                     ) :
@@ -896,7 +907,7 @@ export default class Dashboard extends Component {
                             return (
                                 <tr key={index}>
                                     <td>{index + 1}</td>
-                                    <td>{person['Quote ID']}</td>
+                                    <td>{person['Quote Id']}</td>
                                     <td>{person['Hrs Invested']}</td>
                                     <td>{person['Feasibility Points']}</td>
                                 </tr>
@@ -982,7 +993,7 @@ export default class Dashboard extends Component {
                             return (
                                 <tr key={index}>
                                     <td>{index + 1}</td>
-                                    <td>{person['Quote ID']}</td>
+                                    <td>{person['Quote Id']}</td>
                                     <td>{person['Quote Cost (Std)']}</td>
                                     <td>{person['Quote Status']}</td>
                                     <td>{person['Quote Points']}</td>
